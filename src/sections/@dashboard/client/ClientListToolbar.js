@@ -1,9 +1,17 @@
 import PropTypes from 'prop-types';
 // @mui
 import { styled, alpha } from '@mui/material/styles';
-import { Toolbar, Tooltip, IconButton, Typography, OutlinedInput, InputAdornment } from '@mui/material';
-// component
-import Iconify from '../../../components/iconify';
+import { 
+  Toolbar, 
+  Tooltip, 
+  IconButton, 
+  Typography, 
+  OutlinedInput,
+  InputAdornment } from '@mui/material';
+import { 
+  Delete as DeleteIcon, 
+  Search as SearchIcon
+} from '@mui/icons-material';
 
 // ----------------------------------------------------------------------
 
@@ -50,31 +58,25 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName 
     >
       {numSelected > 0 ? (
         <Typography component="div" variant="subtitle1">
-          {numSelected} selected
+          {numSelected} seleccionados
         </Typography>
       ) : (
         <StyledSearch
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search user..."
+          placeholder="Buscar cliente..."
           startAdornment={
             <InputAdornment position="start">
-              <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', width: 20, height: 20 }} />
+              <SearchIcon />
             </InputAdornment>
           }
         />
       )}
 
-      {numSelected > 0 ? (
-        <Tooltip title="Delete">
+      {numSelected > 0 && (
+        <Tooltip title="Eliminar">
           <IconButton>
-            <Iconify icon="eva:trash-2-fill" />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <Iconify icon="ic:round-filter-list" />
+            <DeleteIcon />
           </IconButton>
         </Tooltip>
       )}
