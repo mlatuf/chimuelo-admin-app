@@ -1,40 +1,34 @@
-// component
-import SvgColor from '../../../components/svg-color';
+import {
+  Person, 
+  Inventory,
+  ShoppingCartCheckout,
+  Balance,
+
+} from '@mui/icons-material';
 
 // ----------------------------------------------------------------------
 
-const icon = (name) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />;
 
 const navConfig = [
   {
-    title: 'dashboard',
-    path: '/dashboard/app',
-    icon: icon('ic_analytics'),
+    title: 'Clientes',
+    path: '/dashboard/clients',
+    icon: <Person />
   },
   {
-    title: 'user',
-    path: '/dashboard/user',
-    icon: icon('ic_user'),
-  },
-  {
-    title: 'product',
+    title: 'Productos',
     path: '/dashboard/products',
-    icon: icon('ic_cart'),
+    icon: <Inventory />
   },
   {
-    title: 'blog',
-    path: '/dashboard/blog',
-    icon: icon('ic_blog'),
+    title: 'Pedidos',
+    path: '/dashboard/products',
+    icon: <ShoppingCartCheckout />,
   },
   {
-    title: 'login',
-    path: '/login',
-    icon: icon('ic_lock'),
-  },
-  {
-    title: 'Not found',
-    path: '/404',
-    icon: icon('ic_disabled'),
+    title: 'Finanzas',
+    path: '/dashboard/products',
+    icon: <Balance />,
   },
 ];
 

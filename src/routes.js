@@ -3,13 +3,12 @@ import { Navigate, useRoutes } from 'react-router-dom';
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
 //
-import BlogPage from './pages/BlogPage';
-import UserPage from './pages/UserPage';
+
+import ClientsPage from './pages/ClientsPage/ClientsPage';
+import ClientDetailsPage from './pages/ClientDetailsPage/ClientDetailsPage';
 import LoginPage from './pages/LoginPage';
 import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
-import DashboardAppPage from './pages/DashboardAppPage';
-
 // ----------------------------------------------------------------------
 
 export default function Router() {
@@ -18,11 +17,11 @@ export default function Router() {
       path: '/dashboard',
       element: <DashboardLayout />,
       children: [
-        { element: <Navigate to="/dashboard/app" />, index: true },
-        { path: 'app', element: <DashboardAppPage /> },
-        { path: 'user', element: <UserPage /> },
+        { element: <Navigate to="/dashboard/clients" />, index: true },
+        { path: 'clients', element: <ClientsPage /> },
+        { path: 'clients/details', element: <ClientDetailsPage /> },
+        { path: 'clients/details/:clientId', element: <ClientDetailsPage /> },
         { path: 'products', element: <ProductsPage /> },
-        { path: 'blog', element: <BlogPage /> },
       ],
     },
     {
@@ -32,7 +31,7 @@ export default function Router() {
     {
       element: <SimpleLayout />,
       children: [
-        { element: <Navigate to="/dashboard/app" />, index: true },
+        { element: <Navigate to="/dashboard/clients" />, index: true },
         { path: '404', element: <Page404 /> },
         { path: '*', element: <Navigate to="/404" /> },
       ],
