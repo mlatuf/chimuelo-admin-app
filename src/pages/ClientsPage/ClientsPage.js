@@ -1,8 +1,8 @@
-/* eslint-disable no-debugger */
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { filter } from 'lodash';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
 // @mui
 import {
   Card,
@@ -32,9 +32,11 @@ import {
 } from '@mui/icons-material';
 
 // components
-import Scrollbar from '../../components/scrollbar';
+import { Scrollbar, Spinner} from '../../components';
+
 // sections
 import { ClientListHead, ClientListToolbar } from '../../sections/@dashboard/client';
+
 // mock
 import CLIENTSLIST from '../../_mock/clients';
 
@@ -96,6 +98,8 @@ const ClientsPage = () => {
 
   const [paramId, setParamId] = useState()
 
+  const [loading, setLoading] = useState(true)
+
   const handleOpenMenu = (event, id) => {
     setParamId(id)
     setOpen(event.currentTarget);
@@ -154,6 +158,11 @@ const ClientsPage = () => {
     setFilterName(event.target.value);
   };
 
+  useEffect(() => {
+    setTimeout(setLoading(false), 100000)
+  }, [])
+  
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - CLIENTSLIST.length) : 0;
 
   const filteredUsers = applySortFilter(CLIENTSLIST, getComparator(order, orderBy), filterName);
@@ -165,7 +174,7 @@ const ClientsPage = () => {
       <Helmet>
         <title> Clientes | Chimuelo Admin App </title>
       </Helmet>
-
+      <Spinner open={loading} />
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
