@@ -14,6 +14,9 @@ import {
   InputAdornment,
 } from '@mui/material';
 
+import { collection, getDocs } from "firebase/firestore";
+import { db } from '../../firebase/config';
+
 import TelephoneInput from "../../components/TelephoneInput";
 
 // mock
@@ -47,15 +50,22 @@ const ClientDetailsPage = () => {
 
   const { handleSubmit, reset, register, formState: { errors, isDirty, isValid } } = methods;
 
- const defaultValues = useMemo(() => (
-  {
-    firstName: client?.firstName || DEFAULT_CLIENT_VALUES.firstName,
-    lastName: client?.lastName || DEFAULT_CLIENT_VALUES.lastName,
-    instagram: client?.instagram || DEFAULT_CLIENT_VALUES.instagram,
-    phone: client?.phone || DEFAULT_CLIENT_VALUES.phone,
-    address: client?.address || DEFAULT_CLIENT_VALUES.address,
-    points: client?.points || DEFAULT_CLIENT_VALUES.points,
- }), [client])  
+  const defaultValues = useMemo(() => (
+    {
+      firstName: client?.firstName || DEFAULT_CLIENT_VALUES.firstName,
+      lastName: client?.lastName || DEFAULT_CLIENT_VALUES.lastName,
+      instagram: client?.instagram || DEFAULT_CLIENT_VALUES.instagram,
+      phone: client?.phone || DEFAULT_CLIENT_VALUES.phone,
+      address: client?.address || DEFAULT_CLIENT_VALUES.address,
+      points: client?.points || DEFAULT_CLIENT_VALUES.points,
+  }), [client])  
+
+  const fetchClients = async () => {
+    const querySnapshot = await getDocs(collection(db, "clients"));
+    querySnapshot.forEach((doc) => {
+      console.log(`${doc.id} => ${doc.data()}`);
+    });
+  }
 
   // Effects
   useEffect(() => {
@@ -63,6 +73,7 @@ const ClientDetailsPage = () => {
     if (clientId && !client) {
       setClient(CLIENTSLIST[Math.floor(Math.random() * CLIENTSLIST.length)])
     }
+    fetchClients()
   }, [reset, defaultValues, clientId, client])
   
   useEffect(() => {
