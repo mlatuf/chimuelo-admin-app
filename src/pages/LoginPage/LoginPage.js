@@ -1,18 +1,18 @@
 import { Helmet } from 'react-helmet-async';
 
 // @mui
-import { Container, Typography, Divider } from '@mui/material';
+import { Container, Divider, Typography } from '@mui/material';
 
 // hooks
-import useResponsive from '../../hooks/useResponsive';
+import useResponsive from 'hooks/useResponsive';
 
 // components
-import Logo from '../../components/logo';
+import Logo from 'components/logo';
 
 // sections
-import { LoginForm } from '../../sections/auth/login';
+import { LoginForm } from 'sections/auth/login';
 
-import { StyledRoot, StyledContent, StyledSection } from './styles'
+import { StyledContent, StyledRoot, StyledSection } from './styles';
 
 // ----------------------------------------------------------------------
 
