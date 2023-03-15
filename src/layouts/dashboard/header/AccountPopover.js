@@ -2,6 +2,9 @@ import { useState } from 'react';
 // @mui
 import { alpha } from '@mui/material/styles';
 import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton, Popover } from '@mui/material';
+
+import { logout } from '../../../firebase';
+
 // mocks_
 import account from '../../../_mock/account';
 
@@ -34,6 +37,16 @@ export default function AccountPopover() {
   const handleClose = () => {
     setOpen(null);
   };
+
+  const handleLogout = async () => {
+    try {
+      const result = await logout();
+      console.log(result);
+      setOpen(null);
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <>
@@ -97,7 +110,7 @@ export default function AccountPopover() {
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <MenuItem onClick={handleClose} sx={{ m: 1 }}>
+        <MenuItem onClick={handleLogout} sx={{ m: 1 }}>
           Logout
         </MenuItem>
       </Popover>
