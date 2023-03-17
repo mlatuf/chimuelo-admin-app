@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { forwardRef } from 'react';
+
 // @mui
 import { useTheme } from '@mui/material/styles';
 import { Box } from '@mui/material';
@@ -8,7 +8,7 @@ import { StyledLabel } from './styles';
 
 // ----------------------------------------------------------------------
 
-const Label = forwardRef(({ children, color = 'default', variant = 'soft', startIcon, endIcon, sx, ...other }, ref) => {
+const Label = ({ children, color = 'default', variant = 'soft', startIcon, endIcon, sx, ...other }) => {
   const theme = useTheme();
 
   const iconStyle = {
@@ -19,7 +19,6 @@ const Label = forwardRef(({ children, color = 'default', variant = 'soft', start
 
   return (
     <StyledLabel
-      ref={ref}
       component="span"
       ownerState={{ color, variant }}
       sx={{
@@ -37,7 +36,7 @@ const Label = forwardRef(({ children, color = 'default', variant = 'soft', start
       {endIcon && <Box sx={{ ml: 0.75, ...iconStyle }}> {endIcon} </Box>}
     </StyledLabel>
   );
-});
+};
 
 Label.propTypes = {
   sx: PropTypes.object,
@@ -46,6 +45,15 @@ Label.propTypes = {
   startIcon: PropTypes.node,
   variant: PropTypes.oneOf(['filled', 'outlined', 'ghost', 'soft']),
   color: PropTypes.oneOf(['default', 'primary', 'secondary', 'info', 'success', 'warning', 'error']),
+};
+
+Label.defaultProps = {
+  sx: {},
+  endIcon: null,
+  children: null,
+  startIcon: null,
+  variant: 'soft',
+  color: 'default',
 };
 
 export default Label;

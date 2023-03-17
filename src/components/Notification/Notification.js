@@ -2,16 +2,12 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 // @mui
-import { 
-  Alert,
-  Snackbar
-} from '@mui/material'
+import { Alert, Snackbar } from '@mui/material';
 
-const Notification = ({ opened, message, variant = "success"}) => {
-  
+const Notification = ({ opened, message, variant = 'success' }) => {
   // States
-  const [open, setOpen] = useState(opened)
- 
+  const [open, setOpen] = useState(opened);
+
   const handleClose = (_, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -19,27 +15,30 @@ const Notification = ({ opened, message, variant = "success"}) => {
 
     setOpen(false);
   };
-  return ( 
-  <Snackbar 
-    open={open} 
-    autoHideDuration={6000} 
-    onClose={handleClose}
-    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
-    <Alert 
+  return (
+    <Snackbar
+      open={open}
+      autoHideDuration={6000}
       onClose={handleClose}
-      severity={variant}
-      sx={{ width: '100%' }}
-      variant="filled"
+      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
     >
-    {message}
-    </Alert> 
-  </Snackbar>
-)}
+      <Alert onClose={handleClose} severity={variant} sx={{ width: '100%' }} variant="filled">
+        {message}
+      </Alert>
+    </Snackbar>
+  );
+};
 
 Notification.propTypes = {
   opened: PropTypes.bool,
   message: PropTypes.string,
-  variant: PropTypes.string
-}
+  variant: PropTypes.string,
+};
+
+Notification.defaultProps = {
+  opened: false,
+  message: '',
+  variant: 'success',
+};
 
 export default Notification;

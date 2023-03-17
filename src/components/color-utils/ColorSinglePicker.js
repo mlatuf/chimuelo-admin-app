@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import { forwardRef } from 'react';
 // @mui
 import { Radio, RadioGroup } from '@mui/material';
 //
@@ -7,8 +6,8 @@ import Icon from './Icon';
 
 // ----------------------------------------------------------------------
 
-const ColorSinglePicker = forwardRef(({ colors, ...other }, ref) => (
-  <RadioGroup row ref={ref} {...other}>
+const ColorSinglePicker = ({ colors, ...other }) => (
+  <RadioGroup row {...other}>
     {colors.map((color) => {
       const whiteColor = color === '#FFFFFF' || color === 'white';
 
@@ -28,10 +27,14 @@ const ColorSinglePicker = forwardRef(({ colors, ...other }, ref) => (
       );
     })}
   </RadioGroup>
-));
+);
 
 ColorSinglePicker.propTypes = {
   colors: PropTypes.arrayOf(PropTypes.string),
+};
+
+ColorSinglePicker.defaultProps = {
+  colors: [],
 };
 
 export default ColorSinglePicker;

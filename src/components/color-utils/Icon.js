@@ -3,17 +3,11 @@ import PropTypes from 'prop-types';
 import { alpha } from '@mui/material/styles';
 import { Box } from '@mui/material';
 //
-import Iconify from '../iconify';
+import { Iconify } from 'components';
 
 // ----------------------------------------------------------------------
 
-Icon.propTypes = {
-  sx: PropTypes.object,
-  checked: PropTypes.bool,
-  whiteColor: PropTypes.bool,
-};
-
-export default function Icon({ checked, whiteColor, sx, ...other }) {
+const Icon = ({ checked, whiteColor, sx, ...other }) => {
   const shadow = (
     <Box
       sx={{
@@ -74,4 +68,18 @@ export default function Icon({ checked, whiteColor, sx, ...other }) {
       {icon}
     </Box>
   );
-}
+};
+
+Icon.propTypes = {
+  sx: PropTypes.object,
+  checked: PropTypes.bool,
+  whiteColor: PropTypes.bool,
+};
+
+Icon.defaultProps = {
+  sx: {},
+  checked: false,
+  whiteColor: false,
+};
+
+export default Icon;

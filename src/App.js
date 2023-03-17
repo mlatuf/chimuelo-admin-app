@@ -4,9 +4,10 @@ import { HelmetProvider } from 'react-helmet-async';
 import Router from './routes';
 // theme
 import ThemeProvider from './theme';
+
 // components
-import { StyledChart } from './components/chart';
-import ScrollToTop from './components/scroll-to-top';
+import ScrollToTop from './components/ScrollToTop';
+// import { UserContextProvider } from 'context/user/userContext';
 
 // ----------------------------------------------------------------------
 
@@ -15,9 +16,10 @@ export default function App() {
     <HelmetProvider>
       <BrowserRouter>
         <ThemeProvider>
+          {/* <UserContextProvider> */}
           <ScrollToTop />
-          <StyledChart />
           <Router />
+          {/* </UserContextProvider> */}
         </ThemeProvider>
       </BrowserRouter>
     </HelmetProvider>

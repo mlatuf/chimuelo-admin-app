@@ -1,17 +1,11 @@
 import PropTypes from 'prop-types';
 // @mui
 import { alpha } from '@mui/material/styles';
-import { Box, Typography, Stack } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
-ColorPreview.propTypes = {
-  sx: PropTypes.object,
-  limit: PropTypes.number,
-  colors: PropTypes.arrayOf(PropTypes.string),
-};
-
-export default function ColorPreview({ colors, limit = 3, sx }) {
+const ColorPreview = ({ colors, limit, sx }) => {
   const showColor = colors.slice(0, limit);
 
   const moreColor = colors.length - limit;
@@ -36,4 +30,18 @@ export default function ColorPreview({ colors, limit = 3, sx }) {
       {colors.length > limit && <Typography variant="subtitle2">{`+${moreColor}`}</Typography>}
     </Stack>
   );
-}
+};
+
+ColorPreview.propTypes = {
+  sx: PropTypes.object,
+  limit: PropTypes.number,
+  colors: PropTypes.arrayOf(PropTypes.string),
+};
+
+ColorPreview.defaultProps = {
+  sx: {},
+  limit: 3,
+  colors: [],
+};
+
+export default ColorPreview;

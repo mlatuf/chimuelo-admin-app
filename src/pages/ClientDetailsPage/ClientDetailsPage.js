@@ -9,7 +9,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { Button, Container, InputAdornment, Stack, TextField, Typography } from '@mui/material';
 
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from 'firebase/config';
+import { db } from 'services/config';
 
 import TelephoneInput from 'components/TelephoneInput';
 

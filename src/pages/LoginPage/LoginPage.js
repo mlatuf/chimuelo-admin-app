@@ -7,7 +7,7 @@ import { Container, Divider, Typography } from '@mui/material';
 import useResponsive from 'hooks/useResponsive';
 
 // components
-import Logo from 'components/logo';
+import Logo from 'components/Logo';
 
 // sections
 import { LoginForm } from 'sections/auth/login';
