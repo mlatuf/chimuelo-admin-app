@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 // @mui
-import { Box, Checkbox, TableRow, TableCell, TableHead, TableSortLabel } from '@mui/material';
+import { Box, Checkbox, TableCell, TableHead, TableRow, TableSortLabel } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -16,25 +16,7 @@ const visuallyHidden = {
   clip: 'rect(0 0 0 0)',
 };
 
-ClientListHead.propTypes = {
-  order: PropTypes.oneOf(['asc', 'desc']),
-  orderBy: PropTypes.string,
-  rowCount: PropTypes.number,
-  headLabel: PropTypes.array,
-  numSelected: PropTypes.number,
-  onRequestSort: PropTypes.func,
-  onSelectAllClick: PropTypes.func,
-};
-
-export default function ClientListHead({
-  order,
-  orderBy,
-  rowCount,
-  headLabel,
-  numSelected,
-  onRequestSort,
-  onSelectAllClick,
-}) {
+const ClientListHead = ({ order, orderBy, rowCount, headLabel, numSelected, onRequestSort, onSelectAllClick }) => {
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -71,4 +53,26 @@ export default function ClientListHead({
       </TableRow>
     </TableHead>
   );
-}
+};
+
+ClientListHead.propTypes = {
+  order: PropTypes.oneOf(['asc', 'desc']),
+  orderBy: PropTypes.string,
+  rowCount: PropTypes.number,
+  headLabel: PropTypes.array,
+  numSelected: PropTypes.number,
+  onRequestSort: PropTypes.func,
+  onSelectAllClick: PropTypes.func,
+};
+
+ClientListHead.defaultProps = {
+  order: 'asc',
+  orderBy: '',
+  rowCount: 0,
+  headLabel: [],
+  numSelected: 0,
+  onRequestSort: null,
+  onSelectAllClick: null,
+};
+
+export default ClientListHead;

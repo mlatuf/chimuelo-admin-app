@@ -1,8 +1,8 @@
-import React from "react";
-import PropTypes from 'prop-types';
+import { forwardRef } from 'react';
 import { IMaskInput } from 'react-imask';
+import PropTypes from 'prop-types';
 
-const TelephoneInput = React.forwardRef((props, ref) => {
+const TelephoneInput = forwardRef(function TelephoneInput(props, ref) {
   const { onChange, ...other } = props;
   return (
     <IMaskInput
@@ -23,4 +23,4 @@ TelephoneInput.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
-export default TelephoneInput
+export default TelephoneInput;

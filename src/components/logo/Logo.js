@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import { forwardRef } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 // @mui
 import { useTheme } from '@mui/material/styles';
@@ -7,7 +6,7 @@ import { Box, Link } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
-const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
+const Logo = ({ disabledLink = false, sx, ...other }) => {
   const theme = useTheme();
 
   const PRIMARY_LIGHT = theme.palette.primary.light;
@@ -28,7 +27,6 @@ const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
 
   const logo = (
     <Box
-      ref={ref}
       component="div"
       sx={{
         width: 40,
@@ -83,11 +81,16 @@ const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
       {logo}
     </Link>
   );
-});
+};
 
 Logo.propTypes = {
   sx: PropTypes.object,
   disabledLink: PropTypes.bool,
+};
+
+Logo.defaultProps = {
+  sx: {},
+  disabledLink: false,
 };
 
 export default Logo;

@@ -12,10 +12,10 @@ const clients = [...Array(24)].map((_, index) => ({
   address: {
     street: faker.address.streetName(),
     number: faker.address.streetAddress(),
-    flat: faker.datatype.number({min: 1, max: 2000}),
+    flat: faker.datatype.number({ min: 1, max: 2000 }),
     city: faker.address.cityName(),
   },
-  points: faker.datatype.number({min: 0, max: 10}),
+  points: faker.datatype.number({ min: 0, max: 10 }),
 }));
 
 export default clients;

@@ -1,44 +1,39 @@
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { filter } from 'lodash';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 // @mui
 import {
-  Card,
-  Table,
-  Stack,
-  Paper,
   Avatar,
   Button,
-  Popover,
+  Card,
   Checkbox,
-  TableRow,
+  Container,
+  IconButton,
   MenuItem,
+  Paper,
+  Popover,
+  Stack,
+  Table,
   TableBody,
   TableCell,
-  Container,
-  Typography,
-  IconButton,
   TableContainer,
   TablePagination,
+  TableRow,
+  Typography,
 } from '@mui/material';
 
-import { 
-  Add,
-  MoreVert,
-  Edit, 
-  Delete
-} from '@mui/icons-material';
+import { Add, Delete, Edit, MoreVert } from '@mui/icons-material';
 
 // components
-import { Scrollbar, Spinner} from '../../components';
+import { Scrollbar, Spinner } from 'components';
 
 // sections
-import { ClientListHead, ClientListToolbar } from '../../sections/@dashboard/client';
+import { ClientListHead, ClientListToolbar } from 'sections/@dashboard/client';
 
 // mock
-import CLIENTSLIST from '../../_mock/clients';
+import CLIENTSLIST from '_mock/clients';
 
 // ----------------------------------------------------------------------
 
@@ -96,12 +91,12 @@ const ClientsPage = () => {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [paramId, setParamId] = useState()
+  const [paramId, setParamId] = useState();
 
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
 
   const handleOpenMenu = (event, id) => {
-    setParamId(id)
+    setParamId(id);
     setOpen(event.currentTarget);
   };
 
@@ -141,8 +136,8 @@ const ClientsPage = () => {
   };
 
   const handleNewClient = () => {
-    navigate("/dashboard/clients/details")
-  }
+    navigate('/dashboard/clients/details');
+  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -159,9 +154,8 @@ const ClientsPage = () => {
   };
 
   useEffect(() => {
-    setTimeout(setLoading(false), 100000)
-  }, [])
-  
+    setTimeout(setLoading(false), 100000);
+  }, []);
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - CLIENTSLIST.length) : 0;
 
@@ -302,12 +296,12 @@ const ClientsPage = () => {
         </MenuItem>
 
         <MenuItem sx={{ color: 'error.main' }}>
-          <Delete/>
+          <Delete />
           Eliminar
         </MenuItem>
       </Popover>
     </>
   );
-}
+};
 
-export default ClientsPage
+export default ClientsPage;

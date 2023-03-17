@@ -13,6 +13,13 @@ ColorMultiPicker.propTypes = {
   selected: PropTypes.arrayOf(PropTypes.string),
 };
 
+ColorMultiPicker.defaultProps = {
+  sx: {},
+  colors: [],
+  onChangeColor: null,
+  selected: PropTypes.arrayOf(PropTypes.string),
+};
+
 export default function ColorMultiPicker({ colors, selected, onChangeColor, sx, ...other }) {
   return (
     <Box sx={sx}>

@@ -1,52 +1,14 @@
 import PropTypes from 'prop-types';
 // @mui
-import { styled, alpha } from '@mui/material/styles';
-import { 
-  Toolbar, 
-  Tooltip, 
-  IconButton, 
-  Typography, 
-  OutlinedInput,
-  InputAdornment } from '@mui/material';
-import { 
-  Delete as DeleteIcon, 
-  Search as SearchIcon
-} from '@mui/icons-material';
+
+import { IconButton, InputAdornment, Tooltip, Typography } from '@mui/material';
+import { Delete as DeleteIcon, Search as SearchIcon } from '@mui/icons-material';
+
+import { StyledRoot, StyledSearch } from './styles';
 
 // ----------------------------------------------------------------------
 
-const StyledRoot = styled(Toolbar)(({ theme }) => ({
-  height: 96,
-  display: 'flex',
-  justifyContent: 'space-between',
-  padding: theme.spacing(0, 1, 0, 3),
-}));
-
-const StyledSearch = styled(OutlinedInput)(({ theme }) => ({
-  width: 240,
-  transition: theme.transitions.create(['box-shadow', 'width'], {
-    easing: theme.transitions.easing.easeInOut,
-    duration: theme.transitions.duration.shorter,
-  }),
-  '&.Mui-focused': {
-    width: 320,
-    boxShadow: theme.customShadows.z8,
-  },
-  '& fieldset': {
-    borderWidth: `1px !important`,
-    borderColor: `${alpha(theme.palette.grey[500], 0.32)} !important`,
-  },
-}));
-
-// ----------------------------------------------------------------------
-
-UserListToolbar.propTypes = {
-  numSelected: PropTypes.number,
-  filterName: PropTypes.string,
-  onFilterName: PropTypes.func,
-};
-
-export default function UserListToolbar({ numSelected, filterName, onFilterName }) {
+const ClientListToolbar = ({ numSelected, filterName, onFilterName }) => {
   return (
     <StyledRoot
       sx={{
@@ -82,4 +44,18 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName 
       )}
     </StyledRoot>
   );
-}
+};
+
+ClientListToolbar.propTypes = {
+  numSelected: PropTypes.number,
+  filterName: PropTypes.string,
+  onFilterName: PropTypes.func,
+};
+
+ClientListToolbar.defaultProps = {
+  numSelected: 0,
+  filterName: '',
+  onFilterName: null,
+};
+
+export default ClientListToolbar;

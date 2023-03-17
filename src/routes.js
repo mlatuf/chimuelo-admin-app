@@ -8,7 +8,7 @@ import ClientsPage from './pages/ClientsPage/ClientsPage';
 import ClientDetailsPage from './pages/ClientDetailsPage/ClientDetailsPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import Page404 from './pages/Page404';
-import ProductsPage from './pages/ProductsPage';
+import ProductsPage from './pages/ProductsPage/ProductsPage';
 // ----------------------------------------------------------------------
 
 export default function Router() {
