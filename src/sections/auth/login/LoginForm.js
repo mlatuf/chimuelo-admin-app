@@ -1,28 +1,36 @@
+import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 
 // @mui
 import { LoadingButton } from '@mui/lab';
 
 // Context
-// import { UserContext, useUserContext } from 'context/user/userContext';
+import { useUserContext } from 'context/user/userContext';
+
+// Actions
+import { LOGIN_USER } from 'context/user/actions';
 
 // services
-import { signInWithGoogle } from 'services';
+import { signInWithGoogle } from 'services/userService';
 
 // Components
 import { Notification } from 'components';
 
 // ----------------------------------------------------------------------
 
-export default function LoginForm() {
+const LoginForm = ({ onLoading }) => {
+  // Hooks
   const navigate = useNavigate();
-  // const { loginUserDispatch } = useUserContext(UserContext);
+  const { dispatch } = useUserContext();
 
+  // Handlers
   const handleClick = async () => {
     try {
+      onLoading(true);
       const result = await signInWithGoogle();
-      // loginUserDispatch(result.user);
       if (result) {
+        dispatch({ type: LOGIN_USER, payload: result.user });
+        onLoading(false);
         navigate('/dashboard', { replace: true });
       }
     } catch (error) {
@@ -35,4 +43,14 @@ export default function LoginForm() {
       Ingresar con Google
     </LoadingButton>
   );
-}
+};
+
+LoginForm.propTypes = {
+  onLoading: PropTypes.func,
+};
+
+LoginForm.defaultProps = {
+  onLoading: null,
+};
+
+export default LoginForm;

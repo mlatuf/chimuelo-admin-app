@@ -1,13 +1,9 @@
+import PropTypes from 'prop-types';
 import { useState } from 'react';
+
 // @mui
 import { alpha } from '@mui/material/styles';
 import { Avatar, Box, Divider, IconButton, MenuItem, Popover, Stack, Typography } from '@mui/material';
-
-// import { UserContext, useUserContext } from 'context/user/userContext';
-
-// import { logout } from 'firebase';
-
-import account from '_mock/account';
 
 // ----------------------------------------------------------------------
 
@@ -28,10 +24,7 @@ const MENU_OPTIONS = [
 
 // ----------------------------------------------------------------------
 
-export default function AccountPopover() {
-  // Hooks
-  // const { user } = useUserContext(UserContext);
-
+const AccountPopover = ({ user, onLogout }) => {
   const [open, setOpen] = useState(null);
 
   const handleOpen = (event) => {
@@ -42,14 +35,8 @@ export default function AccountPopover() {
     setOpen(null);
   };
 
-  const handleLogout = async () => {
-    // try {
-    //   const result = await logout();
-    //   console.log(result);
-    //   setOpen(null);
-    // } catch (error) {
-    //   console.log(error);
-    // }
+  const handleLogout = () => {
+    if (onLogout) onLogout();
   };
 
   return (
@@ -71,7 +58,7 @@ export default function AccountPopover() {
           }),
         }}
       >
-        <Avatar src={account.photoURL} alt="photoURL" />
+        <Avatar src={user.photoURL} alt="photoURL" />
       </IconButton>
 
       <Popover
@@ -95,10 +82,10 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant="subtitle2" noWrap>
-            {account.displayName}
+            {user.displayName}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {account.email}
+            {user.email}
           </Typography>
         </Box>
 
@@ -120,4 +107,15 @@ export default function AccountPopover() {
       </Popover>
     </>
   );
-}
+};
+
+AccountPopover.propTypes = {
+  user: PropTypes.object.isRequired,
+  onLogout: PropTypes.func,
+};
+
+AccountPopover.defaultProps = {
+  onLogout: null,
+};
+
+export default AccountPopover;

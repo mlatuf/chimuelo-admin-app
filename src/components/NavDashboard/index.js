@@ -5,9 +5,6 @@ import { useLocation } from 'react-router-dom';
 // @mui
 import { Avatar, Box, Drawer, Link, Typography } from '@mui/material';
 
-// mock
-import account from '_mock/account';
-
 // hooks
 import useResponsive from 'hooks/useResponsive';
 
@@ -23,7 +20,7 @@ const NAV_WIDTH = 280;
 
 // ----------------------------------------------------------------------
 
-const NavDashboard = ({ openNav, onCloseNav }) => {
+const NavDashboard = ({ user, openNav, onCloseNav }) => {
   const { pathname } = useLocation();
 
   const isDesktop = useResponsive('up', 'lg');
@@ -48,15 +45,15 @@ const NavDashboard = ({ openNav, onCloseNav }) => {
       <Box sx={{ mb: 5, mx: 2.5 }}>
         <Link underline="none">
           <StyledAccount>
-            <Avatar src={account.photoURL} alt="photoURL" />
+            <Avatar src={user.photoURL} alt="photoURL" />
 
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {account.displayName}
+                {user.displayName}
               </Typography>
 
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {account.role}
+                {user.role}
               </Typography>
             </Box>
           </StyledAccount>
@@ -110,6 +107,7 @@ const NavDashboard = ({ openNav, onCloseNav }) => {
 };
 
 NavDashboard.propTypes = {
+  user: PropTypes.object.isRequired,
   openNav: PropTypes.bool,
   onCloseNav: PropTypes.func,
 };
