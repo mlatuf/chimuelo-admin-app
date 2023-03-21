@@ -7,7 +7,7 @@ import ThemeProvider from './theme';
 
 // components
 import ScrollToTop from './components/ScrollToTop';
-// import { UserContextProvider } from 'context/user/userContext';
+import { UserContextProvider } from 'context/user/userContext';
 
 // ----------------------------------------------------------------------
 
@@ -16,10 +16,10 @@ export default function App() {
     <HelmetProvider>
       <BrowserRouter>
         <ThemeProvider>
-          {/* <UserContextProvider> */}
-          <ScrollToTop />
-          <Router />
-          {/* </UserContextProvider> */}
+          <UserContextProvider>
+            <ScrollToTop />
+            <Router />
+          </UserContextProvider>
         </ThemeProvider>
       </BrowserRouter>
     </HelmetProvider>

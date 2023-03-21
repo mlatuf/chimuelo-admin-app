@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 // @mui
@@ -7,26 +8,26 @@ import { Container, Divider, Typography } from '@mui/material';
 import useResponsive from 'hooks/useResponsive';
 
 // components
-import Logo from 'components/Logo';
+import { Logo, Spinner } from 'components';
 
 // sections
 import { LoginForm } from 'sections/auth/login';
 
 import { StyledContent, StyledRoot, StyledSection } from './styles';
 
-// ----------------------------------------------------------------------
-
-// ----------------------------------------------------------------------
-
 export default function LoginPage() {
+  // Hooks
   const mdUp = useResponsive('up', 'md');
+
+  // State
+  const [loading, setLoading] = useState(false);
 
   return (
     <>
       <Helmet>
         <title> Login | Chimuelo Admin App </title>
       </Helmet>
-
+      <Spinner open={loading} />
       <StyledRoot>
         <Logo
           sx={{
@@ -52,7 +53,7 @@ export default function LoginPage() {
             </Typography>
 
             <Divider sx={{ my: 3 }} />
-            <LoginForm />
+            <LoginForm onLoading={(value) => setLoading(value)} />
           </StyledContent>
         </Container>
       </StyledRoot>

@@ -1,48 +1,71 @@
-import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
-// @mui
-import { styled } from '@mui/material/styles';
-//
-import { Header, NavDashboard } from 'components';
+import { useEffect, useState } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
+
+// Context
+import { useUserContext } from 'context/user/userContext';
+
+// Actions
+import { LOGIN_USER, LOGOUT_USER } from 'context/user/actions';
+
+// Services
+import { logout } from 'services/userService';
+
+import { auth, onAuthStateChanged } from 'services/config';
+
+// Components
+import { Header, NavDashboard, Notification, Spinner } from 'components';
+
+import { Main, StyledRoot } from './styles.js';
 
 // ----------------------------------------------------------------------
 
-const APP_BAR_MOBILE = 64;
-const APP_BAR_DESKTOP = 92;
+const DashboardLayout = () => {
+  // Hooks
+  const { state, dispatch } = useUserContext();
+  const { user } = state;
+  const navigate = useNavigate();
 
-const StyledRoot = styled('div')({
-  display: 'flex',
-  minHeight: '100%',
-  overflow: 'hidden',
-});
-
-const Main = styled('div')(({ theme }) => ({
-  flexGrow: 1,
-  overflow: 'auto',
-  minHeight: '100%',
-  paddingTop: APP_BAR_MOBILE + 24,
-  paddingBottom: theme.spacing(10),
-  [theme.breakpoints.up('lg')]: {
-    paddingTop: APP_BAR_DESKTOP + 24,
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-  },
-}));
-
-// ----------------------------------------------------------------------
-
-export default function DashboardLayout() {
+  // State
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        dispatch({ type: LOGIN_USER, payload: user });
+      } else {
+        dispatch({ type: LOGOUT_USER, payload: user });
+        navigate('/login', { replace: true });
+      }
+    });
+  }, []);
+
+  // Handlers
+  const handleOnLogout = async () => {
+    try {
+      setLoading(true);
+      const result = await logout();
+      if (result) {
+        dispatch({ type: LOGOUT_USER, payload: result.user });
+        setLoading(false);
+        navigate('/login', { replace: true });
+      }
+    } catch (error) {
+      return <Notification variant="error" message={error.message} opened />;
+    }
+  };
 
   return (
     <StyledRoot>
-      <Header onOpenNav={() => setOpen(true)} />
+      <Header user={user} onOpenNav={() => setOpen(true)} onLogout={handleOnLogout} />
 
-      <NavDashboard openNav={open} onCloseNav={() => setOpen(false)} />
-
+      <NavDashboard openNav={open} onCloseNav={() => setOpen(false)} user={user} />
+      <Spinner open={loading} />
       <Main>
         <Outlet />
       </Main>
     </StyledRoot>
   );
-}
+};
+
+export default DashboardLayout;

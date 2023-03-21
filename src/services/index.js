@@ -1,2 +1,2 @@
 export * from './config';
-export * from './loginService';
+export * from './userService';
