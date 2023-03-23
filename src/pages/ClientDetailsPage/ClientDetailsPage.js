@@ -1,94 +1,87 @@
-/* eslint-disable no-console */
-import { useEffect, useMemo, useState } from 'react';
+/* eslint-disable no-debugger */
+import { useEffect, useState } from 'react';
 
 import { Helmet } from 'react-helmet-async';
-import { useParams } from 'react-router-dom';
-import { FormProvider, useForm } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router-dom';
 
 // @mui
-import { Button, Container, InputAdornment, Stack, TextField, Typography } from '@mui/material';
+import { Container, Stack, Typography } from '@mui/material';
 
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from 'services/config';
+// Context
+import { useClientContext } from 'context/client/clientContext';
+import { GET_CLIENT } from 'context/client/actions';
 
-import TelephoneInput from 'components/TelephoneInput';
+// Services
+import { getClient, saveClient, updateClient } from 'services/clientService';
 
-// mock
-import CLIENTSLIST from '_mock/clients';
+// Components
+import { Notification, Spinner } from 'components';
 
-import { StyledCard, StyledForm } from './styles';
+// Sections
+import { ClientForm } from 'sections/@dashboard/client';
 
-const DEFAULT_CLIENT_VALUES = {
-  firstName: '',
-  lastName: '',
-  instagram: '',
-  phone: '',
-  address: {
-    street: '',
-    number: '',
-    flat: '',
-    city: '',
-  },
-  points: 0,
-};
+import { StyledCard } from './styles';
 
 const ClientDetailsPage = () => {
   // Hooks
   const { clientId } = useParams();
+  const { state, dispatch } = useClientContext();
+  const { selected: client } = state;
+  const navigate = useNavigate();
 
-  // States
-  const [client, setClient] = useState();
+  // State
+  const [loading, setLoading] = useState(false);
 
-  const methods = useForm({ mode: 'onBlur' });
-
-  const {
-    handleSubmit,
-    reset,
-    register,
-    formState: { errors, isDirty, isValid },
-  } = methods;
-
-  const defaultValues = useMemo(
-    () => ({
-      firstName: client?.firstName || DEFAULT_CLIENT_VALUES.firstName,
-      lastName: client?.lastName || DEFAULT_CLIENT_VALUES.lastName,
-      instagram: client?.instagram || DEFAULT_CLIENT_VALUES.instagram,
-      phone: client?.phone || DEFAULT_CLIENT_VALUES.phone,
-      address: client?.address || DEFAULT_CLIENT_VALUES.address,
-      points: client?.points || DEFAULT_CLIENT_VALUES.points,
-    }),
-    [client]
-  );
-
-  const fetchClients = async () => {
-    const querySnapshot = await getDocs(collection(db, 'clients'));
-    querySnapshot.forEach((doc) => {
-      console.log(`${doc.id} => ${doc.data()}`);
-    });
+  const fetchClient = async (clientId) => {
+    try {
+      setLoading(true);
+      const selectedClient = await getClient(clientId);
+      setLoading(false);
+      if (selectedClient) {
+        dispatch({ type: GET_CLIENT, payload: selectedClient });
+      } else {
+        return <Notification variant="error" message={'El cliente no existe'} opened />;
+      }
+    } catch (error) {
+      setLoading(false);
+      return <Notification variant="error" message={error.message} opened />;
+    }
   };
 
   // Effects
   useEffect(() => {
-    // TODO get data of services
-    if (clientId && !client) {
-      setClient(CLIENTSLIST[Math.floor(Math.random() * CLIENTSLIST.length)]);
+    if (clientId && Object.keys(client).length === 0) {
+      fetchClient(clientId);
     }
-    fetchClients();
-  }, [reset, defaultValues, clientId, client]);
+  }, [clientId]);
 
-  useEffect(() => {
-    if (client) {
-      reset(defaultValues);
+  const onSubmit = (payload) => {
+    try {
+      setLoading(true);
+      const result = payload.uid ? updateClient(payload) : saveClient(payload);
+      if (result) {
+        setLoading(false);
+        navigate('/dashboard/clients', { replace: true });
+        return (
+          <Notification
+            variant="success"
+            message={`El cliente ${result.firstName} ${result.lastName} fue guardado con exito`}
+            opened
+          />
+        );
+      }
+    } catch (error) {
+      setLoading(false);
+      return <Notification variant="error" message={error.message} opened />;
     }
-  }, [reset, defaultValues, client]);
-
-  const onSubmit = (data) => console.log(data);
+  };
 
   return (
     <>
       <Helmet>
         <title>Clientes | Chimuelo Admin App</title>
       </Helmet>
+      <Spinner open={loading} />
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="flex-start" mb={5}>
           <Typography variant="h4" gutterBottom>
@@ -96,66 +89,7 @@ const ClientDetailsPage = () => {
           </Typography>
         </Stack>
         <StyledCard>
-          <FormProvider {...methods}>
-            <StyledForm component="form" onSubmit={handleSubmit(onSubmit)}>
-              <Stack direction="row" alignItems="center" justifyContent="flex-start" mb={5} gap={4}>
-                <TextField
-                  required
-                  error={errors.firstName}
-                  label="Nombre"
-                  InputLabelProps={{ shrink: true }}
-                  {...register('firstName', { required: true })}
-                />
-                <TextField
-                  required
-                  error={errors.lastName}
-                  label="Apellido"
-                  InputLabelProps={{ shrink: true }}
-                  {...register('lastName', { required: true })}
-                />
-                <TextField
-                  label="Perfíl de Instagram"
-                  InputLabelProps={{ shrink: true }}
-                  InputProps={{
-                    startAdornment: <InputAdornment position="start">@</InputAdornment>,
-                  }}
-                  {...register('instagram')}
-                />
-              </Stack>
-              <Stack direction="row" alignItems="center" justifyContent="flex-start" mb={5} gap={4}>
-                <TextField
-                  label="Teléfono"
-                  InputLabelProps={{ shrink: true }}
-                  InputProps={{
-                    inputComponent: TelephoneInput,
-                  }}
-                  {...register('phone')}
-                />
-                <TextField label="Calle" InputLabelProps={{ shrink: true }} {...register('address.street')} />
-                <TextField label="Número" InputLabelProps={{ shrink: true }} {...register('address.number')} />
-              </Stack>
-              <Stack direction="row" alignItems="center" justifyContent="flex-start" mb={5} gap={4}>
-                <TextField label="Departamento" InputLabelProps={{ shrink: true }} {...register('address.flat')} />
-                <TextField label="Ciudad" InputLabelProps={{ shrink: true }} {...register('address.city')} />
-                <TextField
-                  label="Chimu puntos"
-                  InputLabelProps={{ shrink: true }}
-                  InputProps={{
-                    disabled: true,
-                  }}
-                  {...register('points')}
-                />
-              </Stack>
-              <Stack direction="row" spacing={2} justifyContent="end">
-                <Button variant="contained" color="error">
-                  Cancelar
-                </Button>
-                <Button variant="contained" type="submit" disabled={!isValid || isDirty}>
-                  Guardar
-                </Button>
-              </Stack>
-            </StyledForm>
-          </FormProvider>
+          <ClientForm client={client} onSubmit={onSubmit} />
         </StyledCard>
       </Container>
     </>
