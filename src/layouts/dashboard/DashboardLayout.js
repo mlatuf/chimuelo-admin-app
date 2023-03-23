@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 // Context
 import { useUserContext } from 'context/user/userContext';
@@ -51,7 +52,7 @@ const DashboardLayout = () => {
         navigate('/login', { replace: true });
       }
     } catch (error) {
-      return <Notification variant="error" message={error.message} opened />;
+      toast(() => <Notification variant="error" message={error.message} opened />);
     }
   };
 

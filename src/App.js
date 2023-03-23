@@ -1,5 +1,6 @@
 import { BrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
+import { ToastContainer } from 'react-toastify';
 
 // context
 import AppContextProvider from 'context';
@@ -21,6 +22,7 @@ export default function App() {
       <BrowserRouter>
         <ThemeProvider>
           <AppContextProvider>
+            <ToastContainer />
             <ScrollToTop />
             <Router />
           </AppContextProvider>

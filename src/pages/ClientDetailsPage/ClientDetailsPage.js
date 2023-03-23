@@ -21,6 +21,7 @@ import { Notification, Spinner } from 'components';
 import { ClientForm } from 'sections/@dashboard/client';
 
 import { StyledCard } from './styles';
+import { toast } from 'react-toastify';
 
 const ClientDetailsPage = () => {
   // Hooks
@@ -40,11 +41,11 @@ const ClientDetailsPage = () => {
       if (selectedClient) {
         dispatch({ type: GET_CLIENT, payload: selectedClient });
       } else {
-        return <Notification variant="error" message={'El cliente no existe'} opened />;
+        toast(() => <Notification variant="error" message={'El cliente no existe'} opened />);
       }
     } catch (error) {
       setLoading(false);
-      return <Notification variant="error" message={error.message} opened />;
+      toast(() => <Notification variant="error" message={error.message} opened />);
     }
   };
 
@@ -62,17 +63,17 @@ const ClientDetailsPage = () => {
       if (result) {
         setLoading(false);
         navigate('/dashboard/clients', { replace: true });
-        return (
+        toast(() => (
           <Notification
             variant="success"
             message={`El cliente ${result.firstName} ${result.lastName} fue guardado con exito`}
             opened
           />
-        );
+        ));
       }
     } catch (error) {
       setLoading(false);
-      return <Notification variant="error" message={error.message} opened />;
+      toast(() => <Notification variant="error" message={error.message} opened />);
     }
   };
 

@@ -15,6 +15,7 @@ import { signInWithGoogle } from 'services/userService';
 
 // Components
 import { Notification } from 'components';
+import { toast } from 'react-toastify';
 
 // ----------------------------------------------------------------------
 
@@ -34,7 +35,7 @@ const LoginForm = ({ onLoading }) => {
         navigate('/dashboard', { replace: true });
       }
     } catch (error) {
-      return <Notification variant="error" message={error.message} opened />;
+      toast(() => <Notification variant="error" message={error.message} opened />);
     }
   };
 
