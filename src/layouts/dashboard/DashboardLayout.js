@@ -14,7 +14,7 @@ import { logout } from 'services/userService';
 import { auth, onAuthStateChanged } from 'services/config';
 
 // Components
-import { Header, NavDashboard, Notification, Spinner } from 'components';
+import { Header, NavDashboard, Spinner } from 'components';
 
 import { Main, StyledRoot } from './styles.js';
 
@@ -52,7 +52,7 @@ const DashboardLayout = () => {
         navigate('/login', { replace: true });
       }
     } catch (error) {
-      toast(() => <Notification variant="error" message={error.message} opened />);
+      toast.error(error.message);
     }
   };
 

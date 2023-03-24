@@ -1,4 +1,3 @@
-/* eslint-disable no-debugger */
 import { useEffect, useState } from 'react';
 
 import { Helmet } from 'react-helmet-async';
@@ -15,7 +14,7 @@ import { GET_CLIENT } from 'context/client/actions';
 import { getClient, saveClient, updateClient } from 'services/clientService';
 
 // Components
-import { Notification, Spinner } from 'components';
+import { Spinner } from 'components';
 
 // Sections
 import { ClientForm } from 'sections/@dashboard/client';
@@ -41,11 +40,15 @@ const ClientDetailsPage = () => {
       if (selectedClient) {
         dispatch({ type: GET_CLIENT, payload: selectedClient });
       } else {
-        toast(() => <Notification variant="error" message={'El cliente no existe'} opened />);
+        toast.error('El cliente no existe', {
+          onClose: navigate('/dashboard/clients', { replace: true }),
+        });
       }
     } catch (error) {
       setLoading(false);
-      toast(() => <Notification variant="error" message={error.message} opened />);
+      toast.error(error.message, {
+        onClose: navigate('/dashboard/clients', { replace: true }),
+      });
     }
   };
 
@@ -62,18 +65,13 @@ const ClientDetailsPage = () => {
       const result = payload.uid ? updateClient(payload) : saveClient(payload);
       if (result) {
         setLoading(false);
-        navigate('/dashboard/clients', { replace: true });
-        toast(() => (
-          <Notification
-            variant="success"
-            message={`El cliente ${result.firstName} ${result.lastName} fue guardado con exito`}
-            opened
-          />
-        ));
+        toast.success(`El cliente ${result.firstName} ${result.lastName} fue guardado con exito`, {
+          onClose: navigate('/dashboard/clients', { replace: true }),
+        });
       }
     } catch (error) {
       setLoading(false);
-      toast(() => <Notification variant="error" message={error.message} opened />);
+      toast.error(error.message);
     }
   };
 
