@@ -1,5 +1,8 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, setDoc } from 'firebase/firestore';
+import { AvatarGenerator } from 'random-avatar-generator';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
 import { db } from './config';
+
+const avatarGenerator = new AvatarGenerator();
 
 export const getClient = async (uid) => {
   const collectionRef = collection(db, 'clients');
@@ -25,4 +28,14 @@ export const deleteClient = async (uid) => {
   const collectionRef = collection(db, 'clients');
   const docRef = doc(collectionRef, uid);
   await deleteDoc(collectionRef, docRef);
+};
+
+export const getClientList = async () => {
+  const collectionRef = collection(db, 'clients');
+  const querySnapshot = await getDocs(collectionRef);
+  let resultDocs = [];
+  querySnapshot.forEach((doc) => {
+    resultDocs.push({ ...doc.data(), id: doc.id, avatarUrl: avatarGenerator.generateRandomAvatar() });
+  });
+  return resultDocs;
 };

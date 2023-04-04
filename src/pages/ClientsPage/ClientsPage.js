@@ -1,7 +1,7 @@
+import { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
-import { filter } from 'lodash';
-import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 // @mui
 import {
@@ -11,9 +11,7 @@ import {
   Checkbox,
   Container,
   IconButton,
-  MenuItem,
   Paper,
-  Popover,
   Stack,
   Table,
   TableBody,
@@ -24,84 +22,48 @@ import {
   Typography,
 } from '@mui/material';
 
-import { Add, Delete, Edit, MoreVert } from '@mui/icons-material';
+import { Add, MoreVert } from '@mui/icons-material';
+
+// Context
+import { useClientContext } from 'context/client/clientContext';
+import { GET_CLIENT_LIST } from 'context/client/actions';
+
+// service
+import { getClientList } from 'services/clientService';
 
 // components
 import { Scrollbar, Spinner } from 'components';
 
 // sections
-import { ClientListHead, ClientListToolbar } from 'sections/@dashboard/client';
-
-// mock
-import CLIENTSLIST from '_mock/clients';
+import { ClientListHead, ClientListToolbar, ClientOptionsPopover } from 'sections/@dashboard/client';
+import { applySortFilter, getComparator, ROWS_PER_PAGE, TABLE_HEAD } from './utils';
 
 // ----------------------------------------------------------------------
-
-const TABLE_HEAD = [
-  { id: 'name', label: 'Nombre', alignRight: false },
-  { id: 'points', label: 'Chimu puntos', alignRight: false },
-  { id: '' },
-];
-
-// ----------------------------------------------------------------------
-
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator(order, orderBy) {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function applySortFilter(array, comparator, query) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-  if (query) {
-    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
-  }
-  return stabilizedThis.map((el) => el[0]);
-}
 
 const ClientsPage = () => {
+  // Hooks
   const navigate = useNavigate();
+  const { state, dispatch } = useClientContext();
+  const { list: clientList } = state;
 
-  const [open, setOpen] = useState(null);
-
+  // State
+  const [clientTarget, setClientTarget] = useState(null);
   const [page, setPage] = useState(0);
-
   const [order, setOrder] = useState('asc');
-
   const [selected, setSelected] = useState([]);
-
   const [orderBy, setOrderBy] = useState('name');
-
   const [filterName, setFilterName] = useState('');
-
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
   const [paramId, setParamId] = useState();
-
   const [loading, setLoading] = useState(true);
 
+  // Handlers
   const handleOpenMenu = (event, id) => {
     setParamId(id);
-    setOpen(event.currentTarget);
+    setClientTarget(event.currentTarget);
   };
 
   const handleCloseMenu = () => {
-    setOpen(null);
+    setClientTarget(null);
     setParamId(null);
   };
 
@@ -113,7 +75,7 @@ const ClientsPage = () => {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = CLIENTSLIST.map((n) => n.id);
+      const newSelecteds = clientList.map((n) => n.id);
       setSelected(newSelecteds);
       return;
     }
@@ -143,25 +105,44 @@ const ClientsPage = () => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setPage(0);
-    setRowsPerPage(parseInt(event.target.value, 10));
-  };
-
   const handleFilterByName = (event) => {
     setPage(0);
     setFilterName(event.target.value);
   };
 
+  const fetchClients = async () => {
+    try {
+      setLoading(true);
+      const result = await getClientList();
+      setLoading(false);
+      if (result) {
+        dispatch({ type: GET_CLIENT_LIST, payload: result });
+      }
+    } catch (error) {
+      toast.error(error.message, {
+        onClose: navigate('/dashboard/clients', { replace: true }),
+      });
+    }
+  };
+
+  // Effects
   useEffect(() => {
-    setTimeout(setLoading(false), 100000);
-  }, []);
+    if (!clientList || clientList.length === 0) {
+      fetchClients();
+    }
+  }, [clientList]);
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - CLIENTSLIST.length) : 0;
+  const emptyRows = useMemo(
+    () => (page > 0 ? Math.max(0, (1 + page) * ROWS_PER_PAGE - clientList.length) : 0),
+    [page, ROWS_PER_PAGE]
+  );
 
-  const filteredUsers = applySortFilter(CLIENTSLIST, getComparator(order, orderBy), filterName);
+  const filteredClients = useMemo(
+    () => applySortFilter(clientList, getComparator(order, orderBy), filterName),
+    [order, orderBy, filterName, clientList]
+  );
 
-  const isNotFound = !filteredUsers.length && !!filterName;
+  const isNotFound = useMemo(() => !filteredClients.length && !!filterName, [filteredClients, filterName]);
 
   return (
     <>
@@ -189,16 +170,15 @@ const ClientsPage = () => {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={CLIENTSLIST.length}
+                  rowCount={clientList.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, firstName, lastName, avatarUrl, points } = row;
+                  {filteredClients.slice(page * ROWS_PER_PAGE, page * ROWS_PER_PAGE + ROWS_PER_PAGE).map((row) => {
+                    const { id, firstName, lastName, points, avatarUrl } = row;
                     const selectedClient = selected.indexOf(id) !== -1;
-
                     const fullName = `${firstName} ${lastName}`;
 
                     return (
@@ -261,45 +241,15 @@ const ClientsPage = () => {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={CLIENTSLIST.length}
-            rowsPerPage={rowsPerPage}
+            count={clientList.length}
+            rowsPerPage={ROWS_PER_PAGE}
             page={page}
             onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Card>
       </Container>
-
-      <Popover
-        open={Boolean(open)}
-        anchorEl={open}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: {
-            p: 1,
-            width: 140,
-            '& .MuiMenuItem-root': {
-              px: 1,
-              typography: 'body2',
-              borderRadius: 0.75,
-            },
-          },
-        }}
-      >
-        <MenuItem onClick={() => navigate(`/dashboard/clients/details/${paramId}`)}>
-          <Edit />
-          Editar
-        </MenuItem>
-
-        <MenuItem sx={{ color: 'error.main' }}>
-          <Delete />
-          Eliminar
-        </MenuItem>
-      </Popover>
+      <ClientOptionsPopover target={clientTarget} onClose={handleCloseMenu} paramId={paramId} />
     </>
   );
 };
