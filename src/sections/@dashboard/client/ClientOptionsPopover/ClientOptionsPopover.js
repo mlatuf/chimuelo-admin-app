@@ -6,7 +6,7 @@ import { MenuItem, Popover } from '@mui/material';
 
 import { Delete, Edit } from '@mui/icons-material';
 
-const ClientOptionsPopover = ({ target, onClose, paramId }) => {
+const ClientOptionsPopover = ({ target, onClose, onDelete, paramId }) => {
   // Hooks
   const navigate = useNavigate();
 
@@ -34,7 +34,7 @@ const ClientOptionsPopover = ({ target, onClose, paramId }) => {
         Editar
       </MenuItem>
 
-      <MenuItem sx={{ color: 'error.main' }}>
+      <MenuItem sx={{ color: 'error.main' }} onClick={onDelete}>
         <Delete />
         Eliminar
       </MenuItem>
@@ -45,12 +45,14 @@ const ClientOptionsPopover = ({ target, onClose, paramId }) => {
 ClientOptionsPopover.propTypes = {
   target: PropTypes.any,
   onClose: PropTypes.func,
+  onDelete: PropTypes.func,
   paramId: PropTypes.string,
 };
 
 ClientOptionsPopover.defaultProps = {
   target: null,
   onClose: null,
+  onDelete: null,
   paramId: null,
 };
 

@@ -27,14 +27,14 @@ const DEFAULT_CLIENT_VALUES = {
   points: 0,
 };
 
-const ClientForm = ({ client, onSubmit }) => {
+const ClientForm = ({ client, onSubmit, onDelete }) => {
   const methods = useForm({ mode: 'onBlur' });
 
   const {
     handleSubmit,
     reset,
     register,
-    formState: { errors, isDirty, isValid },
+    formState: { errors, isValid },
   } = methods;
 
   const defaultValues = useMemo(
@@ -108,10 +108,13 @@ const ClientForm = ({ client, onSubmit }) => {
           />
         </Stack>
         <Stack direction="row" spacing={2} justifyContent="end">
-          <Button variant="contained" color="error">
+          <Button variant="outlined" color="error" onClick={onDelete}>
+            Eliminar
+          </Button>
+          <Button variant="contained" color="inherit">
             Cancelar
           </Button>
-          <Button variant="contained" type="submit" disabled={!isValid || isDirty}>
+          <Button variant="contained" type="submit" disabled={!isValid}>
             Guardar
           </Button>
         </Stack>
@@ -124,11 +127,13 @@ ClientForm.propTypes = {
   client: PropTypes.object,
   onLoading: PropTypes.func,
   onSubmit: PropTypes.func,
+  onDelete: PropTypes.func,
 };
 
 ClientForm.defaultProps = {
   client: null,
   onLoading: null,
+  onDelete: null,
   onSubmit: null,
 };
 

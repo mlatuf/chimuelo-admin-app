@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable no-debugger */
 import { AvatarGenerator } from 'random-avatar-generator';
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
 import { db } from './config';
@@ -27,7 +29,8 @@ export const updateClient = async (payload) => {
 export const deleteClient = async (uid) => {
   const collectionRef = collection(db, 'clients');
   const docRef = doc(collectionRef, uid);
-  await deleteDoc(collectionRef, docRef);
+  await deleteDoc(docRef);
+  return docRef;
 };
 
 export const getClientList = async () => {

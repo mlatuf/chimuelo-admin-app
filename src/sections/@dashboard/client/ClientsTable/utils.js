@@ -41,4 +41,4 @@ export const TABLE_HEAD = [
   { id: '' },
 ];
 
-export const ROWS_PER_PAGE = 5;
+export const ROWS_PER_PAGE = 10;

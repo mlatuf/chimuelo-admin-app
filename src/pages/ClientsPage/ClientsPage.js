@@ -1,42 +1,26 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 // @mui
-import {
-  Avatar,
-  Button,
-  Card,
-  Checkbox,
-  Container,
-  IconButton,
-  Paper,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TablePagination,
-  TableRow,
-  Typography,
-} from '@mui/material';
-
-import { Add, MoreVert } from '@mui/icons-material';
+import { Button, Card, Container, Stack, Typography } from '@mui/material';
+import { Add } from '@mui/icons-material';
 
 // Context
 import { useClientContext } from 'context/client/clientContext';
-import { GET_CLIENT_LIST } from 'context/client/actions';
+import { DELETE_CLIENT, GET_CLIENT_LIST } from 'context/client/actions';
 
 // service
-import { getClientList } from 'services/clientService';
+import { deleteClient, getClientList } from 'services/clientService';
 
 // components
-import { Scrollbar, Spinner } from 'components';
+import { Spinner } from 'components';
 
 // sections
-import { ClientListHead, ClientListToolbar, ClientOptionsPopover } from 'sections/@dashboard/client';
-import { applySortFilter, getComparator, ROWS_PER_PAGE, TABLE_HEAD } from './utils';
+import { ClientOptionsPopover } from 'sections/@dashboard/client';
+import ConfirmationModal from 'components/ConfirmationModal';
+import ClientsTable from 'sections/@dashboard/client/ClientsTable/ClientsTable';
 
 // ----------------------------------------------------------------------
 
@@ -48,13 +32,10 @@ const ClientsPage = () => {
 
   // State
   const [clientTarget, setClientTarget] = useState(null);
-  const [page, setPage] = useState(0);
-  const [order, setOrder] = useState('asc');
-  const [selected, setSelected] = useState([]);
-  const [orderBy, setOrderBy] = useState('name');
-  const [filterName, setFilterName] = useState('');
+
   const [paramId, setParamId] = useState();
   const [loading, setLoading] = useState(true);
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
 
   // Handlers
   const handleOpenMenu = (event, id) => {
@@ -67,47 +48,26 @@ const ClientsPage = () => {
     setParamId(null);
   };
 
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
-
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelecteds = clientList.map((n) => n.id);
-      setSelected(newSelecteds);
-      return;
-    }
-    setSelected([]);
-  };
-
-  const handleClick = (event, id) => {
-    const selectedIndex = selected.indexOf(id);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
-    }
-    setSelected(newSelected);
-  };
-
   const handleNewClient = () => {
     navigate('/dashboard/clients/details');
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleFilterByName = (event) => {
-    setPage(0);
-    setFilterName(event.target.value);
+  const handleOnDelete = async () => {
+    try {
+      setOpenConfirmationModal(false);
+      setClientTarget(null);
+      setLoading(true);
+      const result = await deleteClient(paramId);
+      if (result) {
+        dispatch({ type: DELETE_CLIENT, payload: result });
+        toast.success('Cliente eliminado con éxito');
+        setLoading(false);
+      }
+    } catch (error) {
+      toast.error(error.message, {
+        onClose: navigate('/dashboard/clients', { replace: true }),
+      });
+    }
   };
 
   const fetchClients = async () => {
@@ -132,18 +92,6 @@ const ClientsPage = () => {
     }
   }, [clientList]);
 
-  const emptyRows = useMemo(
-    () => (page > 0 ? Math.max(0, (1 + page) * ROWS_PER_PAGE - clientList.length) : 0),
-    [page, ROWS_PER_PAGE]
-  );
-
-  const filteredClients = useMemo(
-    () => applySortFilter(clientList, getComparator(order, orderBy), filterName),
-    [order, orderBy, filterName, clientList]
-  );
-
-  const isNotFound = useMemo(() => !filteredClients.length && !!filterName, [filteredClients, filterName]);
-
   return (
     <>
       <Helmet>
@@ -159,97 +107,23 @@ const ClientsPage = () => {
             Nuevo Cliente
           </Button>
         </Stack>
-
         <Card>
-          <ClientListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
-
-          <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
-                <ClientListHead
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={clientList.length}
-                  numSelected={selected.length}
-                  onRequestSort={handleRequestSort}
-                  onSelectAllClick={handleSelectAllClick}
-                />
-                <TableBody>
-                  {filteredClients.slice(page * ROWS_PER_PAGE, page * ROWS_PER_PAGE + ROWS_PER_PAGE).map((row) => {
-                    const { id, firstName, lastName, points, avatarUrl } = row;
-                    const selectedClient = selected.indexOf(id) !== -1;
-                    const fullName = `${firstName} ${lastName}`;
-
-                    return (
-                      <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedClient}>
-                        <TableCell padding="checkbox">
-                          <Checkbox checked={selectedClient} onChange={(event) => handleClick(event, id)} />
-                        </TableCell>
-
-                        <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={fullName} src={avatarUrl} />
-                            <Typography variant="subtitle2" noWrap>
-                              {fullName}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
-
-                        <TableCell align="left">{points}</TableCell>
-
-                        <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, id)}>
-                            <MoreVert />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
-                  )}
-                </TableBody>
-
-                {isNotFound && (
-                  <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <Paper
-                          sx={{
-                            textAlign: 'center',
-                          }}
-                        >
-                          <Typography variant="h6" paragraph>
-                            No encontrado
-                          </Typography>
-
-                          <Typography variant="body2">
-                            No hay resultados para &nbsp;
-                            <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Intente verificar errores tipográficos o usar palabras completas.
-                          </Typography>
-                        </Paper>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                )}
-              </Table>
-            </TableContainer>
-          </Scrollbar>
-
-          <TablePagination
-            component="div"
-            count={clientList.length}
-            rowsPerPage={ROWS_PER_PAGE}
-            page={page}
-            onPageChange={handleChangePage}
-          />
+          <ClientsTable clientList={clientList} onOpenMenu={handleOpenMenu} />
         </Card>
       </Container>
-      <ClientOptionsPopover target={clientTarget} onClose={handleCloseMenu} paramId={paramId} />
+      <ClientOptionsPopover
+        target={clientTarget}
+        onClose={handleCloseMenu}
+        onDelete={() => setOpenConfirmationModal(true)}
+        paramId={paramId}
+      />
+      <ConfirmationModal
+        title="Eliminar Cliente"
+        description="Está seguro que desea eliminar el cliente seleccionado?"
+        open={openConfirmationModal}
+        onClose={() => setOpenConfirmationModal(false)}
+        onConfirm={handleOnDelete}
+      />
     </>
   );
 };

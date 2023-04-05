@@ -8,10 +8,10 @@ import { Container, Stack, Typography } from '@mui/material';
 
 // Context
 import { useClientContext } from 'context/client/clientContext';
-import { GET_CLIENT } from 'context/client/actions';
+import { DELETE_CLIENT, GET_CLIENT } from 'context/client/actions';
 
 // Services
-import { getClient, saveClient, updateClient } from 'services/clientService';
+import { deleteClient, getClient, saveClient, updateClient } from 'services/clientService';
 
 // Components
 import { Spinner } from 'components';
@@ -52,6 +52,23 @@ const ClientDetailsPage = () => {
     }
   };
 
+  const handleOnDelete = async () => {
+    try {
+      setLoading(true);
+      const result = await deleteClient(clientId);
+      if (result) {
+        dispatch({ type: DELETE_CLIENT, payload: result });
+        toast.success('Cliente eliminado con éxito', {
+          onClose: navigate('/dashboard/clients', { replace: true }),
+        });
+      }
+    } catch (error) {
+      toast.error(error.message, {
+        onClose: navigate('/dashboard/clients', { replace: true }),
+      });
+    }
+  };
+
   // Effects
   useEffect(() => {
     if (clientId && Object.keys(client).length === 0) {
@@ -59,10 +76,10 @@ const ClientDetailsPage = () => {
     }
   }, [clientId]);
 
-  const onSubmit = (payload) => {
+  const onSubmit = async (payload) => {
     try {
       setLoading(true);
-      const result = payload.uid ? updateClient(payload) : saveClient(payload);
+      const result = payload.uid ? await updateClient(payload) : await saveClient(payload);
       if (result) {
         setLoading(false);
         toast.success(`El cliente ${result.firstName} ${result.lastName} fue guardado con exito`, {
@@ -88,7 +105,7 @@ const ClientDetailsPage = () => {
           </Typography>
         </Stack>
         <StyledCard>
-          <ClientForm client={client} onSubmit={onSubmit} />
+          <ClientForm client={client} onSubmit={onSubmit} onDelete={handleOnDelete} />
         </StyledCard>
       </Container>
     </>
