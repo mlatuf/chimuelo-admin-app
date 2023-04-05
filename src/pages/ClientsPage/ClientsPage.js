@@ -1,167 +1,96 @@
+import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
-import { filter } from 'lodash';
-import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 // @mui
-import {
-  Avatar,
-  Button,
-  Card,
-  Checkbox,
-  Container,
-  IconButton,
-  MenuItem,
-  Paper,
-  Popover,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TablePagination,
-  TableRow,
-  Typography,
-} from '@mui/material';
+import { Button, Card, Container, Stack, Typography } from '@mui/material';
+import { Add } from '@mui/icons-material';
 
-import { Add, Delete, Edit, MoreVert } from '@mui/icons-material';
+// Context
+import { useClientContext } from 'context/client/clientContext';
+import { DELETE_CLIENT, GET_CLIENT_LIST } from 'context/client/actions';
+
+// service
+import { deleteClient, getClientList } from 'services/clientService';
 
 // components
-import { Scrollbar, Spinner } from 'components';
+import { Spinner } from 'components';
 
 // sections
-import { ClientListHead, ClientListToolbar } from 'sections/@dashboard/client';
-
-// mock
-import CLIENTSLIST from '_mock/clients';
-
-// ----------------------------------------------------------------------
-
-const TABLE_HEAD = [
-  { id: 'name', label: 'Nombre', alignRight: false },
-  { id: 'points', label: 'Chimu puntos', alignRight: false },
-  { id: '' },
-];
+import { ClientOptionsPopover } from 'sections/@dashboard/client';
+import ConfirmationModal from 'components/ConfirmationModal';
+import ClientsTable from 'sections/@dashboard/client/ClientsTable/ClientsTable';
 
 // ----------------------------------------------------------------------
-
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator(order, orderBy) {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function applySortFilter(array, comparator, query) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-  if (query) {
-    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
-  }
-  return stabilizedThis.map((el) => el[0]);
-}
 
 const ClientsPage = () => {
+  // Hooks
   const navigate = useNavigate();
+  const { state, dispatch } = useClientContext();
+  const { list: clientList } = state;
 
-  const [open, setOpen] = useState(null);
-
-  const [page, setPage] = useState(0);
-
-  const [order, setOrder] = useState('asc');
-
-  const [selected, setSelected] = useState([]);
-
-  const [orderBy, setOrderBy] = useState('name');
-
-  const [filterName, setFilterName] = useState('');
-
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  // State
+  const [clientTarget, setClientTarget] = useState(null);
 
   const [paramId, setParamId] = useState();
-
   const [loading, setLoading] = useState(true);
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
 
+  // Handlers
   const handleOpenMenu = (event, id) => {
     setParamId(id);
-    setOpen(event.currentTarget);
+    setClientTarget(event.currentTarget);
   };
 
   const handleCloseMenu = () => {
-    setOpen(null);
+    setClientTarget(null);
     setParamId(null);
-  };
-
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
-
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelecteds = CLIENTSLIST.map((n) => n.id);
-      setSelected(newSelecteds);
-      return;
-    }
-    setSelected([]);
-  };
-
-  const handleClick = (event, id) => {
-    const selectedIndex = selected.indexOf(id);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
-    }
-    setSelected(newSelected);
   };
 
   const handleNewClient = () => {
     navigate('/dashboard/clients/details');
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  const handleOnDelete = async () => {
+    try {
+      setOpenConfirmationModal(false);
+      setClientTarget(null);
+      setLoading(true);
+      const result = await deleteClient(paramId);
+      if (result) {
+        dispatch({ type: DELETE_CLIENT, payload: result });
+        toast.success('Cliente eliminado con éxito');
+        setLoading(false);
+      }
+    } catch (error) {
+      toast.error(error.message, {
+        onClose: navigate('/dashboard/clients', { replace: true }),
+      });
+    }
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setPage(0);
-    setRowsPerPage(parseInt(event.target.value, 10));
+  const fetchClients = async () => {
+    try {
+      setLoading(true);
+      const result = await getClientList();
+      setLoading(false);
+      if (result) {
+        dispatch({ type: GET_CLIENT_LIST, payload: result });
+      }
+    } catch (error) {
+      toast.error(error.message, {
+        onClose: navigate('/dashboard/clients', { replace: true }),
+      });
+    }
   };
 
-  const handleFilterByName = (event) => {
-    setPage(0);
-    setFilterName(event.target.value);
-  };
-
+  // Effects
   useEffect(() => {
-    setTimeout(setLoading(false), 100000);
-  }, []);
-
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - CLIENTSLIST.length) : 0;
-
-  const filteredUsers = applySortFilter(CLIENTSLIST, getComparator(order, orderBy), filterName);
-
-  const isNotFound = !filteredUsers.length && !!filterName;
+    if (!clientList || clientList.length === 0) {
+      fetchClients();
+    }
+  }, [clientList]);
 
   return (
     <>
@@ -178,128 +107,23 @@ const ClientsPage = () => {
             Nuevo Cliente
           </Button>
         </Stack>
-
         <Card>
-          <ClientListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
-
-          <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
-                <ClientListHead
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={CLIENTSLIST.length}
-                  numSelected={selected.length}
-                  onRequestSort={handleRequestSort}
-                  onSelectAllClick={handleSelectAllClick}
-                />
-                <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, firstName, lastName, avatarUrl, points } = row;
-                    const selectedClient = selected.indexOf(id) !== -1;
-
-                    const fullName = `${firstName} ${lastName}`;
-
-                    return (
-                      <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedClient}>
-                        <TableCell padding="checkbox">
-                          <Checkbox checked={selectedClient} onChange={(event) => handleClick(event, id)} />
-                        </TableCell>
-
-                        <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={fullName} src={avatarUrl} />
-                            <Typography variant="subtitle2" noWrap>
-                              {fullName}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
-
-                        <TableCell align="left">{points}</TableCell>
-
-                        <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, id)}>
-                            <MoreVert />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
-                  )}
-                </TableBody>
-
-                {isNotFound && (
-                  <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <Paper
-                          sx={{
-                            textAlign: 'center',
-                          }}
-                        >
-                          <Typography variant="h6" paragraph>
-                            No encontrado
-                          </Typography>
-
-                          <Typography variant="body2">
-                            No hay resultados para &nbsp;
-                            <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Intente verificar errores tipográficos o usar palabras completas.
-                          </Typography>
-                        </Paper>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                )}
-              </Table>
-            </TableContainer>
-          </Scrollbar>
-
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={CLIENTSLIST.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          <ClientsTable clientList={clientList} onOpenMenu={handleOpenMenu} />
         </Card>
       </Container>
-
-      <Popover
-        open={Boolean(open)}
-        anchorEl={open}
+      <ClientOptionsPopover
+        target={clientTarget}
         onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: {
-            p: 1,
-            width: 140,
-            '& .MuiMenuItem-root': {
-              px: 1,
-              typography: 'body2',
-              borderRadius: 0.75,
-            },
-          },
-        }}
-      >
-        <MenuItem onClick={() => navigate(`/dashboard/clients/details/${paramId}`)}>
-          <Edit />
-          Editar
-        </MenuItem>
-
-        <MenuItem sx={{ color: 'error.main' }}>
-          <Delete />
-          Eliminar
-        </MenuItem>
-      </Popover>
+        onDelete={() => setOpenConfirmationModal(true)}
+        paramId={paramId}
+      />
+      <ConfirmationModal
+        title="Eliminar Cliente"
+        description="Está seguro que desea eliminar el cliente seleccionado?"
+        open={openConfirmationModal}
+        onClose={() => setOpenConfirmationModal(false)}
+        onConfirm={handleOnDelete}
+      />
     </>
   );
 };

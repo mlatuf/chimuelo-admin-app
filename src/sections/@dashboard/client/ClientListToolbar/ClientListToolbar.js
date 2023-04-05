@@ -37,7 +37,7 @@ const ClientListToolbar = ({ numSelected, filterName, onFilterName }) => {
 
       {numSelected > 0 && (
         <Tooltip title="Eliminar">
-          <IconButton>
+          <IconButton disabled>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
