@@ -1,3 +1,4 @@
+/* eslint-disable no-debugger */
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 
@@ -32,6 +33,9 @@ const LoginForm = ({ onLoading }) => {
         dispatch({ type: LOGIN_USER, payload: result.user });
         onLoading(false);
         navigate('/dashboard', { replace: true });
+      } else {
+        onLoading(false);
+        toast.error('Ha ocurrido un error, por favor consulte al administrador');
       }
     } catch (error) {
       toast.error(error.message);
