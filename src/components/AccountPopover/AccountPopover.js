@@ -3,24 +3,7 @@ import { useState } from 'react';
 
 // @mui
 import { alpha } from '@mui/material/styles';
-import { Avatar, Box, Divider, IconButton, MenuItem, Popover, Stack, Typography } from '@mui/material';
-
-// ----------------------------------------------------------------------
-
-const MENU_OPTIONS = [
-  {
-    label: 'Home',
-    icon: 'eva:home-fill',
-  },
-  {
-    label: 'Profile',
-    icon: 'eva:person-fill',
-  },
-  {
-    label: 'Settings',
-    icon: 'eva:settings-2-fill',
-  },
-];
+import { Avatar, Box, Divider, IconButton, MenuItem, Popover, Typography } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -58,7 +41,7 @@ const AccountPopover = ({ user, onLogout }) => {
           }),
         }}
       >
-        <Avatar src={user.photoURL} alt="photoURL" />
+        <Avatar src={user.photoURL} alt="photoURL" imgProps={{ referrerPolicy: 'no-referrer' }} />
       </IconButton>
 
       <Popover
@@ -88,16 +71,6 @@ const AccountPopover = ({ user, onLogout }) => {
             {user.email}
           </Typography>
         </Box>
-
-        <Divider sx={{ borderStyle: 'dashed' }} />
-
-        <Stack sx={{ p: 1 }}>
-          {MENU_OPTIONS.map((option) => (
-            <MenuItem key={option.label} onClick={handleClose}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Stack>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
