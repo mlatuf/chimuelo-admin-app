@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable no-debugger */
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
@@ -74,11 +76,12 @@ const ClientsPage = () => {
     try {
       setLoading(true);
       const result = await getClientList();
-      setLoading(false);
       if (result) {
+        setLoading(false);
         dispatch({ type: GET_CLIENT_LIST, payload: result });
       }
     } catch (error) {
+      setLoading(false);
       toast.error(error.message, {
         onClose: navigate('/dashboard/clients', { replace: true }),
       });
@@ -89,6 +92,8 @@ const ClientsPage = () => {
   useEffect(() => {
     if (!clientList || clientList.length === 0) {
       fetchClients();
+    } else {
+      setLoading(false);
     }
   }, [clientList]);
 
