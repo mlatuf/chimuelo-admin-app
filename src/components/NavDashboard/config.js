@@ -15,12 +15,12 @@ const navConfig = [
   },
   {
     title: 'Pedidos',
-    path: '/dashboard/products',
+    path: '/dashboard/orders',
     icon: <ShoppingCartCheckout />,
   },
   {
     title: 'Finanzas',
-    path: '/dashboard/products',
+    path: '/dashboard/balance',
     icon: <Balance />,
   },
 ];
