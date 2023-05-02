@@ -6,6 +6,7 @@ import {
   Avatar,
   Checkbox,
   IconButton,
+  InputAdornment,
   Paper,
   Stack,
   Table,
@@ -16,13 +17,18 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { MoreVert } from '@mui/icons-material';
+import { MoreVert, Search as SearchIcon } from '@mui/icons-material';
+
+// utils
+import { getComparator } from 'utils';
 
 // Components
-import { Scrollbar } from 'components';
+import { Scrollbar, Toolbar } from 'components';
 
-import { ClientListHead, ClientListToolbar } from 'sections/@dashboard/client';
-import { applySortFilter, getComparator, ROWS_PER_PAGE, TABLE_HEAD } from './utils';
+import { ClientListHead } from 'sections/@dashboard/client';
+import { applySortFilter, ROWS_PER_PAGE, TABLE_HEAD } from './utils';
+
+import { StyledSearch } from './styles';
 
 const ClientsTable = ({ clientList, onOpenMenu }) => {
   // State
@@ -87,7 +93,18 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
 
   return (
     <React.Fragment>
-      <ClientListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+      <Toolbar numSelected={selected.length}>
+        <StyledSearch
+          value={filterName}
+          onChange={handleFilterByName}
+          placeholder="Buscar cliente..."
+          startAdornment={
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          }
+        />
+      </Toolbar>
       <Scrollbar>
         <TableContainer sx={{ minWidth: 800 }}>
           <Table>

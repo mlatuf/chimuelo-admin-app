@@ -1,15 +1,8 @@
 // @mui
 import { alpha, styled } from '@mui/material/styles';
-import { OutlinedInput, Toolbar } from '@mui/material';
+import { OutlinedInput } from '@mui/material';
 
 // ----------------------------------------------------------------------
-
-export const StyledRoot = styled(Toolbar)(({ theme }) => ({
-  height: 96,
-  display: 'flex',
-  justifyContent: 'space-between',
-  padding: theme.spacing(0, 1, 0, 3),
-}));
 
 export const StyledSearch = styled(OutlinedInput)(({ theme }) => ({
   width: 240,

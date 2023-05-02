@@ -4,6 +4,9 @@ import { Helmet } from 'react-helmet-async';
 import { Button, Card, Container, Stack, Typography } from '@mui/material';
 import { Add } from '@mui/icons-material';
 
+// Sections
+import { ProductsTable } from 'sections/@dashboard/product';
+
 // ----------------------------------------------------------------------
 
 const ProductsPage = () => {
@@ -22,7 +25,9 @@ const ProductsPage = () => {
             Nuevo Producto
           </Button>
         </Stack>
-        <Card>Listado de Productos</Card>
+        <Card>
+          <ProductsTable />
+        </Card>
       </Container>
     </>
   );
