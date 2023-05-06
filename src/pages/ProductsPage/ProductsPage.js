@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -7,11 +7,15 @@ import { toast } from 'react-toastify';
 import { Button, Card, Container, Stack, Typography } from '@mui/material';
 import { Add } from '@mui/icons-material';
 
+// Context
+import { useProductContext } from 'context/product/productContext';
+import { GET_PRODUCT_LIST } from 'context/product/actions';
+
 // components
 import { Spinner } from 'components';
 
 // service
-import { getCategories } from 'services/productService';
+import { getProductList } from 'services/productService';
 
 // Sections
 import { ProductsTable } from 'sections/@dashboard/product';
@@ -21,16 +25,20 @@ import { ProductsTable } from 'sections/@dashboard/product';
 const ProductsPage = () => {
   // Hooks
   const navigate = useNavigate();
+  const { state, dispatch } = useProductContext();
+  const { list: productList } = state;
 
   // State
   const [loading, setLoading] = useState(true);
 
-  const fetchCategories = async () => {
+  // Handlers
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-      const result = await getCategories();
+      const result = await getProductList();
       if (result) {
         setLoading(false);
+        dispatch({ type: GET_PRODUCT_LIST, payload: result });
       }
     } catch (error) {
       setLoading(false);
@@ -38,10 +46,18 @@ const ProductsPage = () => {
         onClose: navigate('/dashboard/products', { replace: true }),
       });
     }
-  };
+  }, [getProductList]);
+
+  const handleNewProduct = useCallback(() => {}, []);
+
+  // Effects
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    if (!productList || productList.length === 0) {
+      fetchProducts();
+    } else {
+      setLoading(false);
+    }
+  }, [productList]);
 
   return (
     <>
@@ -54,12 +70,12 @@ const ProductsPage = () => {
           <Typography variant="h4" gutterBottom>
             Productos
           </Typography>
-          <Button variant="contained" startIcon={<Add />} onClick={() => {}}>
+          <Button variant="contained" startIcon={<Add />} onClick={handleNewProduct}>
             Nuevo Producto
           </Button>
         </Stack>
         <Card>
-          <ProductsTable />
+          <ProductsTable productList={productList} />
         </Card>
       </Container>
     </>
