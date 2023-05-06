@@ -10,9 +10,9 @@ export const applySortFilter = (array, comparator, query) => {
   if (query) {
     return filter(
       array,
-      (_client) =>
-        _client.firstName.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        _client.lastName.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      (_product) =>
+        _product.name.toLowerCase().indexOf(query.name.toLowerCase()) !== -1 ||
+        _product.category.toLowerCase().indexOf(query.category.toLowerCase()) !== -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
@@ -20,8 +20,11 @@ export const applySortFilter = (array, comparator, query) => {
 
 export const TABLE_HEAD = [
   { id: 'name', label: 'Nombre', alignRight: false },
-  { id: 'points', label: 'Chimu puntos', alignRight: false },
+  { id: 'price', label: 'Precio', alignRight: false },
+  { id: 'category', label: 'Categoria', alignRight: false },
+  { id: 'stock', label: 'Stock total', alignRight: false },
+  { id: 'variants', label: 'Variantes', alignRight: false },
   { id: '' },
 ];
 
-export const ROWS_PER_PAGE = 10;
+export const ROWS_PER_PAGE = 25;
