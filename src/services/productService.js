@@ -24,24 +24,5 @@ export const getProductList = async () => {
   querySnapshot.forEach((doc) => {
     resultDocs.push({ ...doc.data(), id: doc.id });
   });
-  const groupedProducts = Object.values(
-    resultDocs.reduce((acc, obj) => {
-      if (!acc[obj.name]) {
-        acc[obj.name] = {
-          id: obj.id,
-          name: obj.name,
-          category: obj.category,
-          price: obj.price,
-          stock: 0,
-          dimensions: obj.dimensions,
-          variants: [],
-        };
-      }
-      acc[obj.name].variants.push({ ...obj.attributes, stock: obj.stock });
-      acc[obj.name].stock += obj.stock;
-      return acc;
-    }, {})
-  );
-
-  return groupedProducts;
+  return resultDocs;
 };

@@ -11,8 +11,8 @@ export const applySortFilter = (array, comparator, query) => {
     return filter(
       array,
       (_product) =>
-        _product.name.toLowerCase().indexOf(query.name.toLowerCase()) !== -1 ||
-        _product.category.toLowerCase().indexOf(query.category.toLowerCase()) !== -1
+        _product.name.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
+        _product.category.toLowerCase().indexOf(query.toLowerCase()) !== -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
@@ -22,8 +22,8 @@ export const TABLE_HEAD = [
   { id: 'name', label: 'Nombre', alignRight: false },
   { id: 'price', label: 'Precio', alignRight: false },
   { id: 'category', label: 'Categoria', alignRight: false },
-  { id: 'stock', label: 'Stock total', alignRight: false },
-  { id: 'variants', label: 'Variantes', alignRight: false },
+  { id: 'attributes', label: 'Atributos', alignRight: false },
+  { id: 'stock', label: 'Stock', alignRight: false },
   { id: '' },
 ];
 

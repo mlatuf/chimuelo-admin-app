@@ -36,20 +36,12 @@ const ProductsTable = ({ productList }) => {
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('name');
-  const [filter, setFilter] = useState({
-    name: '',
-    category: '',
-  });
+  const [filter, setFilter] = useState('');
 
   // Handlers
-  const handleFilterByName = (event) => {
+  const handleFilter = (event) => {
     setPage(0);
-    setFilter((prev) => ({ name: event.target.value, category: prev.category }));
-  };
-
-  const handleFilterByCategory = (event) => {
-    setPage(0);
-    setFilter((prev) => ({ name: prev.name, category: event.target.value }));
+    setFilter(event.target.value);
   };
 
   const handleRequestSort = useCallback((event, property) => {
@@ -99,23 +91,16 @@ const ProductsTable = ({ productList }) => {
 
   const isNotFound = useMemo(() => !filteredProducts.length && !!filter, [filteredProducts, filter]);
 
+  const attributesComponents = (attributes, id) =>
+    Object.keys(attributes).map((key) => <p key={`${id}-${key}`}>{`${key}: ${attributes[key]}`}</p>);
+
   return (
     <React.Fragment>
       <Toolbar numSelected={selected.length}>
         <StyledSearch
-          value={filter.name}
-          onChange={handleFilterByName}
+          value={filter}
+          onChange={handleFilter}
           placeholder="Buscar producto..."
-          startAdornment={
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          }
-        />
-        <StyledSearch
-          value={filter.category}
-          onChange={handleFilterByCategory}
-          placeholder="Buscar categoria..."
           startAdornment={
             <InputAdornment position="start">
               <SearchIcon />
@@ -137,7 +122,7 @@ const ProductsTable = ({ productList }) => {
             />
             <TableBody>
               {filteredProducts.slice(page * ROWS_PER_PAGE, page * ROWS_PER_PAGE + ROWS_PER_PAGE).map((row) => {
-                const { id, name, category, stock, price } = row;
+                const { id, name, category, stock, price, attributes } = row;
                 const selectedClient = selected.indexOf(id) !== -1;
 
                 return (
@@ -155,9 +140,9 @@ const ProductsTable = ({ productList }) => {
                     </TableCell>
 
                     <TableCell align="left">{price}</TableCell>
-                    <TableCell align="left">{category}</TableCell>
+                    <TableCell align="left">{category.split(' > ').pop()}</TableCell>
+                    <TableCell align="left">{attributesComponents(attributes, id)}</TableCell>
                     <TableCell align="left">{stock}</TableCell>
-                    <TableCell align="left">Variantes</TableCell>
 
                     <TableCell align="right">
                       <IconButton size="large" color="inherit" onClick={() => {}}>
