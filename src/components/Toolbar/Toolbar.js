@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 
 // @mui
 import { IconButton, Tooltip, Typography } from '@mui/material';
-import { Delete as DeleteIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, FilterList as FilterListIcon } from '@mui/icons-material';
 
 import { StyledRoot } from './styles';
 
-const Toolbar = ({ children, numSelected }) => {
+const Toolbar = ({ children, numSelected, onFiltersClick }) => {
   return (
     <StyledRoot
       sx={{
@@ -31,6 +31,13 @@ const Toolbar = ({ children, numSelected }) => {
           </IconButton>
         </Tooltip>
       )}
+      {onFiltersClick && numSelected === 0 && (
+        <Tooltip title="Filtrar">
+          <IconButton onClick={onFiltersClick}>
+            <FilterListIcon />
+          </IconButton>
+        </Tooltip>
+      )}
     </StyledRoot>
   );
 };
@@ -38,11 +45,13 @@ const Toolbar = ({ children, numSelected }) => {
 Toolbar.propTypes = {
   numSelected: PropTypes.number,
   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
+  onFiltersClick: PropTypes.func,
 };
 
 Toolbar.defaultProps = {
   numSelected: 0,
   children: {},
+  onFiltersClick: null,
 };
 
 export default React.memo(Toolbar);

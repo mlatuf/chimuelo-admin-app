@@ -8,6 +8,8 @@ const ProductContext = createContext();
 const initialState = {
   list: [],
   selected: {},
+  categories: [],
+  filters: {},
 };
 
 const ProductContextProvider = ({ children }) => {

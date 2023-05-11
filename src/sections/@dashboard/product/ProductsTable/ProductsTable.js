@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* eslint-disable no-debugger */
 import React, { useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 
@@ -26,22 +26,24 @@ import { getComparator } from 'utils';
 import { Scrollbar, Toolbar } from 'components';
 
 import { ProductListHead } from 'sections/@dashboard/product';
-import { applySortFilter, ROWS_PER_PAGE, TABLE_HEAD } from './utils';
+import { applySortFilter, getAttributesToFilter, ROWS_PER_PAGE, TABLE_HEAD } from './utils';
 
 import { StyledSearch } from './styles';
+import ProductCategoryFilter from '../ProductCategoryFilter';
 
-const ProductsTable = ({ productList }) => {
+const ProductsTable = ({ productList, categories, onSetFilters }) => {
   // State
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('name');
-  const [filter, setFilter] = useState('');
+  const [filterName, setFilterName] = useState('');
+  const [toggleFilters, setToggleFilters] = useState(false);
 
   // Handlers
   const handleFilter = (event) => {
     setPage(0);
-    setFilter(event.target.value);
+    setFilterName(event.target.value);
   };
 
   const handleRequestSort = useCallback((event, property) => {
@@ -78,6 +80,11 @@ const ProductsTable = ({ productList }) => {
     setPage(newPage);
   }, []);
 
+  const handleOnCloseFilter = useCallback((appliedFilter) => {
+    setToggleFilters(false);
+    onSetFilters(appliedFilter);
+  }, []);
+
   // Memos
   const emptyRows = useMemo(
     () => (page > 0 ? Math.max(0, (1 + page) * ROWS_PER_PAGE - productList.length) : 0),
@@ -85,28 +92,40 @@ const ProductsTable = ({ productList }) => {
   );
 
   const filteredProducts = useMemo(
-    () => applySortFilter(productList, getComparator(order, orderBy), filter),
-    [order, orderBy, filter, productList]
+    () => applySortFilter(productList, getComparator(order, orderBy), filterName),
+    [order, orderBy, filterName, productList]
   );
 
-  const isNotFound = useMemo(() => !filteredProducts.length && !!filter, [filteredProducts, filter]);
+  const isNotFound = useMemo(() => !filteredProducts.length && !!filterName, [filteredProducts, filterName]);
 
   const attributesComponents = (attributes, id) =>
-    Object.keys(attributes).map((key) => <p key={`${id}-${key}`}>{`${key}: ${attributes[key]}`}</p>);
+    Object.keys(attributes)
+      .sort()
+      .map((key) => <p key={`${id}-${key}`}>{`${key}: ${attributes[key]}`}</p>);
+
+  const attributeOptions = useMemo(() => getAttributesToFilter(filteredProducts), [filteredProducts]);
 
   return (
     <React.Fragment>
-      <Toolbar numSelected={selected.length}>
-        <StyledSearch
-          value={filter}
-          onChange={handleFilter}
-          placeholder="Buscar producto..."
-          startAdornment={
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          }
-        />
+      <Toolbar numSelected={selected.length} onFiltersClick={() => setToggleFilters((prev) => !prev)}>
+        <Stack direction="column" alignItems="start" spacing={2}>
+          <StyledSearch
+            value={filterName}
+            onChange={(e) => handleFilter(e, 'name')}
+            placeholder="Buscar producto..."
+            startAdornment={
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            }
+          />
+          <ProductCategoryFilter
+            isOpen={toggleFilters}
+            onClose={handleOnCloseFilter}
+            categories={categories}
+            attributes={attributeOptions}
+          />
+        </Stack>
       </Toolbar>
       <Scrollbar>
         <TableContainer sx={{ minWidth: 800 }}>
@@ -197,6 +216,12 @@ const ProductsTable = ({ productList }) => {
 
 ProductsTable.propTypes = {
   productList: PropTypes.arrayOf(PropTypes.object).isRequired,
+  onSetFilters: PropTypes.func.isRequired,
+  categories: PropTypes.arrayOf(PropTypes.object),
+};
+
+ProductsTable.defaultProps = {
+  categories: [],
 };
 
 export default React.memo(ProductsTable);

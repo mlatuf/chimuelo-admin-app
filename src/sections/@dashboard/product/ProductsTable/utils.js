@@ -1,4 +1,4 @@
-import { filter } from 'lodash';
+/* eslint-disable no-console */
 
 export const applySortFilter = (array, comparator, query) => {
   const stabilizedThis = array.map((el, index) => [el, index]);
@@ -8,14 +8,26 @@ export const applySortFilter = (array, comparator, query) => {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(
-      array,
-      (_product) =>
-        _product.name.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        _product.category.toLowerCase().indexOf(query.toLowerCase()) !== -1
-    );
+    return array.filter((_product) => _product.name.toLowerCase() === query.toLowerCase());
   }
   return stabilizedThis.map((el) => el[0]);
+};
+
+export const getAttributesToFilter = (products) => {
+  const attributesArray = products.reduce((acc, obj) => {
+    Object.entries(obj.attributes).forEach(([attribute, value]) => {
+      const existingAttribute = acc.find((attr) => attr.label === attribute);
+      if (existingAttribute) {
+        if (!existingAttribute.options.includes(value)) {
+          existingAttribute.options.push(value);
+        }
+      } else {
+        acc.push({ label: attribute, options: [value] });
+      }
+    });
+    return acc;
+  }, []);
+  return attributesArray;
 };
 
 export const TABLE_HEAD = [
