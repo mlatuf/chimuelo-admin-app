@@ -1,21 +1,41 @@
+import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 // @mui
-import { Container, Typography } from '@mui/material';
+import { Button, Container, Typography } from '@mui/material';
+import { Add } from '@mui/icons-material';
+// components
+import { Spinner } from 'components';
 
 // ----------------------------------------------------------------------
 
 const ProductsPage = () => {
+  // Hooks
+
+  // State
+  const [loading, setLoading] = useState(true);
+
+  // Handlers
+  const handleNewCategory = () => {};
+
+  // Effects
+  useEffect(() => {
+    setLoading(false);
+  }, []);
+
   return (
     <>
       <Helmet>
-        <title> Products | Chimuelo Admin App </title>
+        <title> Productos | Chimuelo Admin App </title>
       </Helmet>
-
+      <Spinner open={loading} />
       <Container>
         <Typography variant="h4" sx={{ mb: 5 }}>
-          Products
+          Productos
         </Typography>
+        <Button variant="contained" startIcon={<Add />} onClick={handleNewCategory}>
+          Categoria
+        </Button>
       </Container>
     </>
   );

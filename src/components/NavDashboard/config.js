@@ -1,4 +1,4 @@
-import { Balance, Inventory, Person, ShoppingCartCheckout } from '@mui/icons-material';
+import { Balance, Category, Inventory, Person, ShoppingCartCheckout } from '@mui/icons-material';
 
 // ----------------------------------------------------------------------
 
@@ -14,13 +14,18 @@ const navConfig = [
     icon: <Inventory />,
   },
   {
+    title: 'Categorias',
+    path: '/dashboard/categories',
+    icon: <Category />,
+  },
+  {
     title: 'Pedidos',
-    path: '/dashboard/products',
+    path: '/dashboard/orders',
     icon: <ShoppingCartCheckout />,
   },
   {
     title: 'Finanzas',
-    path: '/dashboard/products',
+    path: '/dashboard/finances',
     icon: <Balance />,
   },
 ];
