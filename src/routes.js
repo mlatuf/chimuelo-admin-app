@@ -4,11 +4,7 @@ import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
 //
 
-import ClientsPage from './pages/ClientsPage/ClientsPage';
-import ClientDetailsPage from './pages/ClientDetailsPage/ClientDetailsPage';
-import LoginPage from './pages/LoginPage/LoginPage';
-import Page404 from './pages/Page404';
-import ProductsPage from './pages/ProductsPage/ProductsPage';
+import { CategoriesPage, ClientDetailsPage, ClientsPage, LoginPage, Page404, ProductsPage } from 'pages';
 // ----------------------------------------------------------------------
 
 export default function Router() {
@@ -22,6 +18,7 @@ export default function Router() {
         { path: 'clients/details', element: <ClientDetailsPage /> },
         { path: 'clients/details/:clientId', element: <ClientDetailsPage /> },
         { path: 'products', element: <ProductsPage /> },
+        { path: 'categories', element: <CategoriesPage /> },
       ],
     },
     {

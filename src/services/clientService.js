@@ -14,5 +14,6 @@ export const updateClient = async (id, payload) => await API.patch(CLIENTS_URL, 
 
 export const getClientList = async (payload) => {
   const result = await API.get(CLIENTS_URL, { payload });
-  return result.map((item) => ({ ...item, avatarUrl: avatarGenerator.generateRandomAvatar() }));
+  const { data } = result;
+  return data.map((item) => ({ ...item, avatarUrl: avatarGenerator.generateRandomAvatar() }));
 };

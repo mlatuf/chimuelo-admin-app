@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable no-debugger */
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
@@ -17,11 +15,10 @@ import { DELETE_CLIENT, GET_CLIENT_LIST } from 'context/client/actions';
 import { deleteClient, getClientList } from 'services/clientService';
 
 // components
-import { Spinner } from 'components';
+import { ConfirmationModal, Spinner } from 'components';
 
 // sections
 import { ClientOptionsPopover } from 'sections/@dashboard/client';
-import ConfirmationModal from 'components/ConfirmationModal';
 import ClientsTable from 'sections/@dashboard/client/ClientsTable/ClientsTable';
 
 // ----------------------------------------------------------------------
