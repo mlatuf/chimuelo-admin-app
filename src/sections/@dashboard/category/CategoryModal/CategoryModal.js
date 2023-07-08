@@ -1,9 +1,11 @@
+/* eslint-disable no-debugger */
+/* eslint-disable no-console */
 import { useEffect, useMemo } from 'react';
 
 import PropTypes from 'prop-types';
 
 // @mui
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from '@mui/material';
+import { Button, Dialog, DialogContent, DialogTitle, MenuItem, Stack, TextField } from '@mui/material';
 
 // Hooks
 import { FormProvider, useForm } from 'react-hook-form';
@@ -16,7 +18,7 @@ const DEFAULT_CATEGORY_VALUES = {
   parent: null,
 };
 
-const CategoryModal = ({ category, open, onClose, onSubmit, onDelete }) => {
+const CategoryModal = ({ list, category, open, onClose, onSubmit, onDelete }) => {
   const methods = useForm({ mode: 'onBlur' });
 
   const {
@@ -41,13 +43,15 @@ const CategoryModal = ({ category, open, onClose, onSubmit, onDelete }) => {
     }
   }, [reset, defaultValues, category]);
 
+  const parentOptions = useMemo(() => list.map((cat) => ({ id: cat.id, value: cat.name })), [list]);
+
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Subscribe</DialogTitle>
+      <DialogTitle>Editar Categoria</DialogTitle>
       <DialogContent>
         <FormProvider {...methods}>
           <StyledForm component="form" onSubmit={handleSubmit(onSubmit)}>
-            <Stack direction="row" alignItems="center" justifyContent="flex-start" mb={5} gap={4}>
+            <Stack direction="column" alignItems="center" justifyContent="flex-start" mb={5} mt={4} gap={4}>
               <TextField
                 required
                 error={errors.name}
@@ -56,36 +60,42 @@ const CategoryModal = ({ category, open, onClose, onSubmit, onDelete }) => {
                 {...register('name', { required: true })}
               />
               <TextField
-                required
-                error={errors.parent}
+                select
                 label="Categoria padre"
+                defaultValue={category?.parent || ''}
+                error={errors.name}
                 InputLabelProps={{ shrink: true }}
                 {...register('parent')}
-              />
+              >
+                {parentOptions.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.value}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
+            <Stack direction="row" spacing={2} justifyContent="end">
+              <Button variant="outlined" color="error" onClick={onDelete}>
+                Eliminar
+              </Button>
+              <Button variant="contained" color="inherit" onClick={onClose}>
+                Cancelar
+              </Button>
+              <Button variant="contained" type="submit" disabled={!isValid}>
+                Guardar
+              </Button>
             </Stack>
           </StyledForm>
         </FormProvider>
-        <TextField autoFocus margin="dense" id="name" label="Email Address" type="email" fullWidth variant="standard" />
       </DialogContent>
-      <DialogActions>
-        <Button variant="outlined" color="error" onClick={onDelete}>
-          Eliminar
-        </Button>
-        <Button variant="contained" color="inherit">
-          Cancelar
-        </Button>
-        <Button variant="contained" type="submit" disabled={!isValid}>
-          Guardar
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 };
 
 CategoryModal.propTypes = {
-  open: PropTypes.boolean,
+  open: PropTypes.bool,
   category: PropTypes.object,
-  onLoading: PropTypes.func,
+  list: PropTypes.arrayOf(PropTypes.object),
   onSubmit: PropTypes.func,
   onDelete: PropTypes.func,
   onClose: PropTypes.func,
@@ -94,7 +104,7 @@ CategoryModal.propTypes = {
 CategoryModal.defaultProps = {
   open: false,
   category: null,
-  onLoading: null,
+  list: [],
   onDelete: null,
   onSubmit: null,
   onClose: null,

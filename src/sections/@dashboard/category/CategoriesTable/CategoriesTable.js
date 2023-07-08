@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 
 // @mui
@@ -11,17 +11,19 @@ import CategoriesListToolbar from '../CategoriesListToolbar';
 
 import { applySortFilter, getComparator } from './utils';
 
-const CategoriesTable = ({ categoriesList }) => {
+const CategoriesTable = ({ categoriesList, onEdit }) => {
   // State
   const [filterName, setFilterName] = useState('');
 
   // Handlers
-  const handleFilterByName = (event) => {
-    setFilterName(event.target.value);
-  };
+  const handleFilterByName = useCallback(
+    (event) => {
+      setFilterName(event.target.value);
+    },
+    [setFilterName]
+  );
 
   // Memos
-
   const filteredCategories = useMemo(
     () => applySortFilter(categoriesList, getComparator('asc', 'fullName'), filterName),
     [filterName, categoriesList]
@@ -42,10 +44,10 @@ const CategoriesTable = ({ categoriesList }) => {
                 key={id}
                 secondaryAction={
                   <>
-                    <IconButton size="large" color="inherit" aria-label="Editar">
+                    <IconButton size="large" color="inherit" aria-label="Editar" onClick={() => onEdit(id)}>
                       <Edit />
                     </IconButton>
-                    <IconButton size="large" color="inherit" aria-label="Eliminar">
+                    <IconButton size="large" color="inherit" aria-label="Eliminar" disabled>
                       <Delete />
                     </IconButton>
                   </>
@@ -83,6 +85,7 @@ const CategoriesTable = ({ categoriesList }) => {
 
 CategoriesTable.propTypes = {
   categoriesList: PropTypes.arrayOf(PropTypes.object).isRequired,
+  onEdit: PropTypes.func.isRequired,
 };
 
 export default memo(CategoriesTable);
