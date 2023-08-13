@@ -36,12 +36,12 @@ const CategoriesPage = () => {
 
   // Handlers
   const handleNewCategory = useCallback(() => {
-    dispatch({ type: GET_CATEGORY, payload: null });
+    dispatch({ type: GET_CATEGORY, payload: {} });
     setOpenModal(true);
   }, []);
 
   const handleOnClose = useCallback(() => {
-    dispatch({ type: GET_CATEGORY, payload: null });
+    dispatch({ type: GET_CATEGORY, payload: {} });
     setOpenModal(false);
   }, []);
 
