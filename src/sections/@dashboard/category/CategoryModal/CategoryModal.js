@@ -1,5 +1,3 @@
-/* eslint-disable no-debugger */
-/* eslint-disable no-console */
 import { useEffect, useMemo } from 'react';
 
 import PropTypes from 'prop-types';
@@ -43,7 +41,10 @@ const CategoryModal = ({ list, category, open, onClose, onSubmit, onDelete }) =>
     }
   }, [reset, defaultValues, category]);
 
-  const parentOptions = useMemo(() => list.map((cat) => ({ id: cat.id, value: cat.name })), [list]);
+  const parentOptions = useMemo(() => {
+    const existingCategories = list.map((cat) => ({ id: cat.id, value: cat.name }));
+    return [{ id: null, value: 'Sin categoria padre' }, ...existingCategories];
+  }, [list]);
 
   return (
     <Dialog open={open} onClose={onClose}>
