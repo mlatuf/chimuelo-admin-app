@@ -25,7 +25,7 @@ const navConfig = [
   },
   {
     title: 'Finanzas',
-    path: '/dashboard/finances',
+    path: '/dashboard/balance',
     icon: <Balance />,
   },
 ];

@@ -1,21 +1,4 @@
-/* eslint-disable no-debugger */
 import { filter } from 'lodash';
-
-export const descendingComparator = (a, b, orderBy) => {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-};
-
-export const getComparator = (order, orderBy) => {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-};
 
 export const applySortFilter = (array, comparator, query) => {
   const stabilizedThis = array.map((el, index) => [el, index]);
