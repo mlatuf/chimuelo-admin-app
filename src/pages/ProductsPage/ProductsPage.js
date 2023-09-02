@@ -1,3 +1,6 @@
+/* eslint-disable no-debugger */
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-console */
 import { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
@@ -5,28 +8,38 @@ import { toast } from 'react-toastify';
 
 // @mui
 import { Button, Card, Container, Stack, Typography } from '@mui/material';
-import { Add } from '@mui/icons-material';
+import { Add, ImportExport, PriceCheck } from '@mui/icons-material';
 
 // Context
 import { useProductContext } from 'context/product/productContext';
-import { SET_CATEGORIES_LIST, SET_FILTERS, SET_PRODUCT_LIST } from 'context/product/actions';
+import { GET_FILTERS, GET_PRODUCT_LIST } from 'context/product/actions';
+import { useCategoryContext } from 'context/category/categoryContext';
+import { GET_CATEGORY_LIST } from 'context/category/actions';
 
 // components
 import { Spinner } from 'components';
 
 // service
-import { getCategories, getProductList } from 'services/productService';
+import { getProductList, saveProduct } from 'services/productService';
+import { getCategoryList } from 'services/categoryService';
 
 // Sections
 import { ProductsTable } from 'sections/@dashboard/product';
+
+import exportedProducts from './exportedProducts';
+import { groupProductsBy } from 'utils/products';
+import { async } from '@firebase/util';
 
 // ----------------------------------------------------------------------
 
 const ProductsPage = () => {
   // Hooks
   const navigate = useNavigate();
-  const { state, dispatch } = useProductContext();
-  const { list: productList, categories, filters } = state;
+  const { state: productState, dispatch: dispatchProducts } = useProductContext();
+  const { list: productList, filters } = productState;
+
+  const { state: categoryState, dispatch: dispatchCategories } = useCategoryContext();
+  const { list: categoryList } = categoryState;
 
   // State
   const [loading, setLoading] = useState(true);
@@ -38,7 +51,7 @@ const ProductsPage = () => {
       const result = await getProductList(filters);
       if (result) {
         setLoading(false);
-        dispatch({ type: SET_PRODUCT_LIST, payload: result });
+        dispatchProducts({ type: GET_PRODUCT_LIST, payload: result?.data?.elements });
       }
     } catch (error) {
       setLoading(false);
@@ -51,10 +64,10 @@ const ProductsPage = () => {
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
-      const result = await getCategories();
+      const result = await getCategoryList();
       if (result) {
         setLoading(false);
-        dispatch({ type: SET_CATEGORIES_LIST, payload: result });
+        dispatchCategories({ type: GET_CATEGORY_LIST, payload: result.data });
       }
     } catch (error) {
       setLoading(false);
@@ -65,15 +78,33 @@ const ProductsPage = () => {
   }, [getProductList]);
 
   const setFilters = useCallback(({ category, attributes }) => {
-    dispatch({ type: SET_FILTERS, payload: { category, attributes } });
+    dispatchProducts({ type: GET_FILTERS, payload: { category, attributes } });
   }, []);
 
-  const handleNewProduct = useCallback(() => {}, []);
+  const handleNewProduct = async () => {
+    const groupedProducts = Object.values(groupProductsBy(exportedProducts, 'IDProduct'));
+    console.log(groupedProducts);
 
+    groupedProducts.forEach(async (productVariants) => {
+      const currentCategory = categoryList.find(() => {
+        const catArray = productVariants[0].Categorías.split(' > ');
+        return (cat) => cat.name === catArray[catArray.lenght - 1];
+      });
+      try {
+        setLoading(true);
+        const productResult = await saveProduct({ name: productVariants[0].name, category: currentCategory.id });
+        if (productResult) {
+          setLoading(false);
+        }
+      } catch (error) {
+        setLoading(false);
+      }
+    });
+  };
   // Effects
   useEffect(() => {
     fetchCategories();
-    if (!productList || productList.length === 0) {
+    if (!productList) {
       fetchProducts();
     } else {
       setLoading(false);
@@ -83,6 +114,8 @@ const ProductsPage = () => {
   useEffect(() => {
     fetchProducts();
   }, [filters]);
+
+  console.log(productList);
 
   return (
     <>
@@ -95,12 +128,20 @@ const ProductsPage = () => {
           <Typography variant="h4" gutterBottom>
             Productos
           </Typography>
-          <Button variant="contained" startIcon={<Add />} onClick={handleNewProduct}>
-            Nuevo Producto
-          </Button>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" gap={2}>
+            <Button variant="contained" startIcon={<Add />} onClick={handleNewProduct}>
+              Nuevo Producto
+            </Button>
+            <Button variant="contained" startIcon={<ImportExport />} onClick={() => {}} disabled>
+              Exportar / Importar
+            </Button>
+            <Button variant="contained" startIcon={<PriceCheck />} onClick={() => {}} disabled>
+              Actualizar Precios
+            </Button>
+          </Stack>
         </Stack>
         <Card>
-          <ProductsTable productList={productList} categories={categories} onSetFilters={setFilters} />
+          <ProductsTable productList={productList} categories={categoryList} onSetFilters={setFilters} />
         </Card>
       </Container>
     </>

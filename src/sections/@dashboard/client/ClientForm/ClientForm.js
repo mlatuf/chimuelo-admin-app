@@ -8,14 +8,14 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { Button, InputAdornment, Stack, TextField } from '@mui/material';
 
 // components
-import { TelephoneInput } from 'components';
+// import { TelephoneInput } from 'components';
 
 // styles
 import { StyledForm } from './styles';
 
 const DEFAULT_CLIENT_VALUES = {
-  firstName: '',
-  lastName: '',
+  name: '',
+  lastname: '',
   instagram: '',
   phone: '',
   address: {
@@ -23,8 +23,10 @@ const DEFAULT_CLIENT_VALUES = {
     number: '',
     flat: '',
     city: '',
+    province: '',
+    notes: '',
   },
-  points: 0,
+  score: 0,
 };
 
 const ClientForm = ({ client, onSubmit, onDelete }) => {
@@ -39,12 +41,12 @@ const ClientForm = ({ client, onSubmit, onDelete }) => {
 
   const defaultValues = useMemo(
     () => ({
-      firstName: client?.firstName || DEFAULT_CLIENT_VALUES.firstName,
-      lastName: client?.lastName || DEFAULT_CLIENT_VALUES.lastName,
+      name: client?.name || DEFAULT_CLIENT_VALUES.name,
+      lastname: client?.lastname || DEFAULT_CLIENT_VALUES.lastname,
       instagram: client?.instagram || DEFAULT_CLIENT_VALUES.instagram,
       phone: client?.phone || DEFAULT_CLIENT_VALUES.phone,
       address: client?.address || DEFAULT_CLIENT_VALUES.address,
-      points: client?.points || DEFAULT_CLIENT_VALUES.points,
+      score: client?.score || DEFAULT_CLIENT_VALUES.score,
     }),
     [client]
   );
@@ -62,17 +64,17 @@ const ClientForm = ({ client, onSubmit, onDelete }) => {
         <Stack direction="row" alignItems="center" justifyContent="flex-start" mb={5} gap={4}>
           <TextField
             required
-            error={errors.firstName}
+            error={errors.name}
             label="Nombre"
             InputLabelProps={{ shrink: true }}
-            {...register('firstName', { required: true })}
+            {...register('name', { required: true })}
           />
           <TextField
             required
-            error={errors.lastName}
+            error={errors.lastname}
             label="Apellido"
             InputLabelProps={{ shrink: true }}
-            {...register('lastName', { required: true })}
+            {...register('lastname', { required: true })}
           />
           <TextField
             label="Perfíl de Instagram"
@@ -84,27 +86,24 @@ const ClientForm = ({ client, onSubmit, onDelete }) => {
           />
         </Stack>
         <Stack direction="row" alignItems="center" justifyContent="flex-start" mb={5} gap={4}>
-          <TextField
-            label="Teléfono"
-            InputLabelProps={{ shrink: true }}
-            InputProps={{
-              inputComponent: TelephoneInput,
-            }}
-            {...register('phone')}
-          />
+          <TextField label="Teléfono" InputLabelProps={{ shrink: true }} {...register('phone')} />
           <TextField label="Calle" InputLabelProps={{ shrink: true }} {...register('address.street')} />
           <TextField label="Número" InputLabelProps={{ shrink: true }} {...register('address.number')} />
         </Stack>
         <Stack direction="row" alignItems="center" justifyContent="flex-start" mb={5} gap={4}>
           <TextField label="Departamento" InputLabelProps={{ shrink: true }} {...register('address.flat')} />
           <TextField label="Ciudad" InputLabelProps={{ shrink: true }} {...register('address.city')} />
+          <TextField label="Provincia" InputLabelProps={{ shrink: true }} {...register('address.province')} />
+        </Stack>
+        <Stack direction="row" alignItems="center" justifyContent="flex-start" mb={5} gap={4}>
+          <TextField label="Observaciones" InputLabelProps={{ shrink: true }} {...register('address.notes')} />
           <TextField
             label="Chimu puntos"
             InputLabelProps={{ shrink: true }}
             InputProps={{
               disabled: true,
             }}
-            {...register('points')}
+            {...register('score')}
           />
         </Stack>
         <Stack direction="row" spacing={2} justifyContent="end">

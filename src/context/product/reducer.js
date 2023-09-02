@@ -1,14 +1,6 @@
 import update from 'react-addons-update';
 
-import {
-  CREATE_PRODUCT,
-  DELETE_PRODUCT,
-  SET_CATEGORIES_LIST,
-  SET_FILTERS,
-  SET_PRODUCT,
-  SET_PRODUCT_LIST,
-  UPDATE_PRODUCT,
-} from './actions';
+import { CREATE_PRODUCT, DELETE_PRODUCT, GET_FILTERS, GET_PRODUCT, GET_PRODUCT_LIST, UPDATE_PRODUCT } from './actions';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -30,25 +22,19 @@ const reducer = (state, action) => {
         list: state.list.filter((_, i) => i !== action.payload),
       };
 
-    case SET_PRODUCT:
+    case GET_PRODUCT:
       return {
         ...state,
         selected: action.payload,
       };
 
-    case SET_PRODUCT_LIST:
+    case GET_PRODUCT_LIST:
       return {
         ...state,
-        list: action.payload,
+        list: Object.values(action.payload),
       };
 
-    case SET_CATEGORIES_LIST:
-      return {
-        ...state,
-        categories: action.payload,
-      };
-
-    case SET_FILTERS:
+    case GET_FILTERS:
       return {
         ...state,
         filters: action.payload,

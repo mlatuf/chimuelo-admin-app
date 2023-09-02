@@ -31,8 +31,9 @@ const reducer = (state, action) => {
     case GET_CATEGORY_LIST:
       return {
         ...state,
-        list: action.payload,
+        list: Object.values(action.payload),
       };
+
     default:
       return state;
   }

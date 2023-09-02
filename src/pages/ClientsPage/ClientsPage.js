@@ -85,7 +85,7 @@ const ClientsPage = () => {
 
   // Effects
   useEffect(() => {
-    if (!clientList || clientList.length === 0) {
+    if (!clientList) {
       fetchClients();
     } else {
       setLoading(false);

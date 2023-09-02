@@ -119,9 +119,9 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
             />
             <TableBody>
               {filteredClients.slice(page * ROWS_PER_PAGE, page * ROWS_PER_PAGE + ROWS_PER_PAGE).map((row) => {
-                const { id, firstName, lastName, points, avatarUrl } = row;
+                const { id, name, lastname, points, avatarUrl } = row;
                 const selectedClient = selected.indexOf(id) !== -1;
-                const fullName = `${firstName} ${lastName}`;
+                const fullName = `${name} ${lastname}`;
 
                 return (
                   <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedClient}>

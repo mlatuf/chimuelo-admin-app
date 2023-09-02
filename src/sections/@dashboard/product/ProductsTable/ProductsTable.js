@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-debugger */
 import React, { useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
@@ -103,7 +104,7 @@ const ProductsTable = ({ productList, categories, onSetFilters }) => {
       .sort()
       .map((key) => <p key={`${id}-${key}`}>{`${key}: ${attributes[key]}`}</p>);
 
-  const attributeOptions = useMemo(() => getAttributesToFilter(filteredProducts), [filteredProducts]);
+  // const attributeOptions = useMemo(() => getAttributesToFilter(filteredProducts), [filteredProducts]);
 
   return (
     <React.Fragment>
@@ -119,12 +120,12 @@ const ProductsTable = ({ productList, categories, onSetFilters }) => {
               </InputAdornment>
             }
           />
-          <ProductCategoryFilter
+          {/* <ProductCategoryFilter
             isOpen={toggleFilters}
             onClose={handleOnCloseFilter}
             categories={categories}
             attributes={attributeOptions}
-          />
+          /> */}
         </Stack>
       </Toolbar>
       <Scrollbar>

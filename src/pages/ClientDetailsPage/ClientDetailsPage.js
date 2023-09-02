@@ -71,10 +71,10 @@ const ClientDetailsPage = () => {
 
   // Effects
   useEffect(() => {
-    if (clientId && Object.keys(client).length === 0) {
+    if (clientId && client && Object.keys(client).length === 0) {
       fetchClient(clientId);
     }
-  }, [clientId]);
+  }, [clientId, client]);
 
   const onSubmit = async (payload) => {
     try {
