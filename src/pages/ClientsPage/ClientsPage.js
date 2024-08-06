@@ -18,9 +18,7 @@ import { deleteClient, getClientList } from 'services/clientService';
 import { ConfirmationModal, Spinner } from 'components';
 
 // sections
-import { ClientOptionsPopover } from 'sections/@dashboard/client';
-import ClientsTable from 'sections/@dashboard/client/ClientsTable/ClientsTable';
-
+import { ClientOptionsPopover, ClientsTable } from 'sections/@dashboard/client';
 // ----------------------------------------------------------------------
 
 const ClientsPage = () => {
@@ -87,7 +85,7 @@ const ClientsPage = () => {
 
   // Effects
   useEffect(() => {
-    if (!clientList || clientList.length === 0) {
+    if (!clientList) {
       fetchClients();
     } else {
       setLoading(false);

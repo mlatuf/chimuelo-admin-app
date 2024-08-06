@@ -1,9 +1,10 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-debugger */
 import React, { useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 
 // @mui
 import {
-  Avatar,
   Checkbox,
   IconButton,
   InputAdornment,
@@ -25,21 +26,23 @@ import { getComparator } from 'utils';
 // Components
 import { Scrollbar, Toolbar } from 'components';
 
-import { ClientListHead } from 'sections/@dashboard/client';
-import { applySortFilter, ROWS_PER_PAGE, TABLE_HEAD } from './utils';
+import { ProductListHead } from 'sections/@dashboard/product';
+import { applySortFilter, getAttributesToFilter, ROWS_PER_PAGE, TABLE_HEAD } from './utils';
 
 import { StyledSearch } from './styles';
+import ProductCategoryFilter from '../ProductCategoryFilter';
 
-const ClientsTable = ({ clientList, onOpenMenu }) => {
+const ProductsTable = ({ productList, categories, onSetFilters }) => {
   // State
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
+  const [toggleFilters, setToggleFilters] = useState(false);
 
   // Handlers
-  const handleFilterByName = (event) => {
+  const handleFilter = (event) => {
     setPage(0);
     setFilterName(event.target.value);
   };
@@ -52,7 +55,7 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = clientList.map((n) => n.id);
+      const newSelecteds = productList.map((n) => n.id);
       setSelected(newSelecteds);
       return;
     }
@@ -78,50 +81,69 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
     setPage(newPage);
   }, []);
 
+  const handleOnCloseFilter = useCallback((appliedFilter) => {
+    setToggleFilters(false);
+    onSetFilters(appliedFilter);
+  }, []);
+
   // Memos
   const emptyRows = useMemo(
-    () => (page > 0 ? Math.max(0, (1 + page) * ROWS_PER_PAGE - clientList.length) : 0),
+    () => (page > 0 ? Math.max(0, (1 + page) * ROWS_PER_PAGE - productList.length) : 0),
     [page, ROWS_PER_PAGE]
   );
 
-  const filteredClients = useMemo(
-    () => applySortFilter(clientList, getComparator(order, orderBy), filterName),
-    [order, orderBy, filterName, clientList]
+  const filteredProducts = useMemo(
+    () => applySortFilter(productList, getComparator(order, orderBy), filterName),
+    [order, orderBy, filterName, productList]
   );
 
-  const isNotFound = useMemo(() => !filteredClients.length && !!filterName, [filteredClients, filterName]);
+  const isNotFound = useMemo(() => !filteredProducts.length && !!filterName, [filteredProducts, filterName]);
+
+  const attributesComponents = (attributes, id) =>
+    Object.keys(attributes)
+      .sort()
+      .map((key) => <p key={`${id}-${key}`}>{`${key}: ${attributes[key]}`}</p>);
+
+  // const attributeOptions = useMemo(() => getAttributesToFilter(filteredProducts), [filteredProducts]);
 
   return (
     <React.Fragment>
-      <Toolbar numSelected={selected.length}>
-        <StyledSearch
-          value={filterName}
-          onChange={handleFilterByName}
-          placeholder="Buscar cliente..."
-          startAdornment={
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          }
-        />
+      <Toolbar numSelected={selected.length} onFiltersClick={() => setToggleFilters((prev) => !prev)}>
+        <Stack direction="column" alignItems="start" spacing={2}>
+          <StyledSearch
+            value={filterName}
+            onChange={(e) => handleFilter(e, 'name')}
+            placeholder="Buscar producto..."
+            startAdornment={
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            }
+          />
+          {/* <ProductCategoryFilter
+            isOpen={toggleFilters}
+            onClose={handleOnCloseFilter}
+            categories={categories}
+            attributes={attributeOptions}
+          /> */}
+        </Stack>
       </Toolbar>
       <Scrollbar>
         <TableContainer sx={{ minWidth: 800 }}>
           <Table>
-            <ClientListHead
+            <ProductListHead
               order={order}
               orderBy={orderBy}
               headLabel={TABLE_HEAD}
-              rowCount={clientList.length}
+              rowCount={productList.length}
               numSelected={selected.length}
               onRequestSort={handleRequestSort}
               onSelectAllClick={handleSelectAllClick}
             />
             <TableBody>
-              {filteredClients.slice(page * ROWS_PER_PAGE, page * ROWS_PER_PAGE + ROWS_PER_PAGE).map((row) => {
-                const { id, name, lastname, points, avatarUrl } = row;
+              {filteredProducts.slice(page * ROWS_PER_PAGE, page * ROWS_PER_PAGE + ROWS_PER_PAGE).map((row) => {
+                const { id, name, category, stock, price, attributes } = row;
                 const selectedClient = selected.indexOf(id) !== -1;
-                const fullName = `${name} ${lastname}`;
 
                 return (
                   <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedClient}>
@@ -131,17 +153,19 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
 
                     <TableCell component="th" scope="row" padding="none">
                       <Stack direction="row" alignItems="center" spacing={2}>
-                        <Avatar alt={fullName} src={avatarUrl} />
                         <Typography variant="subtitle2" noWrap>
-                          {fullName}
+                          {name}
                         </Typography>
                       </Stack>
                     </TableCell>
 
-                    <TableCell align="left">{points}</TableCell>
+                    <TableCell align="left">{price}</TableCell>
+                    <TableCell align="left">{category.split(' > ').pop()}</TableCell>
+                    <TableCell align="left">{attributesComponents(attributes, id)}</TableCell>
+                    <TableCell align="left">{stock}</TableCell>
 
                     <TableCell align="right">
-                      <IconButton size="large" color="inherit" onClick={(event) => onOpenMenu(event, id)}>
+                      <IconButton size="large" color="inherit" onClick={() => {}}>
                         <MoreVert />
                       </IconButton>
                     </TableCell>
@@ -169,8 +193,7 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
                       </Typography>
 
                       <Typography variant="body2">
-                        No hay resultados para &nbsp;
-                        <strong>&quot;{filterName}&quot;</strong>.
+                        No hay resultados para su búsqueda
                         <br /> Intente verificar errores tipográficos o usar palabras completas.
                       </Typography>
                     </Paper>
@@ -181,10 +204,9 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
           </Table>
         </TableContainer>
       </Scrollbar>
-
       <TablePagination
         component="div"
-        count={clientList.length}
+        count={productList.length}
         rowsPerPage={ROWS_PER_PAGE}
         page={page}
         onPageChange={handleChangePage}
@@ -193,9 +215,14 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
   );
 };
 
-ClientsTable.propTypes = {
-  clientList: PropTypes.arrayOf(PropTypes.object).isRequired,
-  onOpenMenu: PropTypes.func.isRequired,
+ProductsTable.propTypes = {
+  productList: PropTypes.arrayOf(PropTypes.object).isRequired,
+  onSetFilters: PropTypes.func.isRequired,
+  categories: PropTypes.arrayOf(PropTypes.object),
 };
 
-export default ClientsTable;
+ProductsTable.defaultProps = {
+  categories: [],
+};
+
+export default React.memo(ProductsTable);

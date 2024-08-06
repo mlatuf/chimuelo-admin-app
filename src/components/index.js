@@ -9,5 +9,5 @@ export { default as NavSection } from './NavSection';
 export { default as ScrollToTop } from './ScrollToTop';
 export { default as Scrollbar } from './Scrollbar';
 export { default as Searchbar } from './Searchbar';
+export { default as Toolbar } from './Toolbar';
 export { default as Spinner } from './Spinner';
-export { default as TelephoneInput } from './TelephoneInput';

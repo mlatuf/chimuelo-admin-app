@@ -6,7 +6,12 @@ const CLIENTS_URL = 'clients';
 
 export const deleteClient = async (id) => await API.delete(CLIENTS_URL, { id });
 
-export const getClient = async (id) => await API.get(CLIENTS_URL, { id });
+export const getClient = async (id) => {
+  const result = await API.get(CLIENTS_URL, { id });
+  const { data } = result;
+  const retrievedClient = data[0];
+  return retrievedClient;
+};
 
 export const saveClient = async (payload) => await API.post(CLIENTS_URL, { payload });
 

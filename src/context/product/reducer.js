@@ -1,39 +1,44 @@
 import update from 'react-addons-update';
 
-import { CREATE_CATEGORY, DELETE_CATEGORY, GET_CATEGORY, GET_CATEGORY_LIST, UPDATE_CATEGORY } from './actions';
+import { CREATE_PRODUCT, DELETE_PRODUCT, GET_FILTERS, GET_PRODUCT, GET_PRODUCT_LIST, UPDATE_PRODUCT } from './actions';
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case CREATE_CATEGORY:
+    case CREATE_PRODUCT:
       return update(state.list, { $push: [action.payload] });
 
-    case UPDATE_CATEGORY:
+    case UPDATE_PRODUCT:
       return update(state, {
         list: {
           [action.id]: {
-            client: { $set: action.payload },
+            product: { $set: action.payload },
           },
         },
       });
 
-    case DELETE_CATEGORY:
+    case DELETE_PRODUCT:
       return {
         ...state,
         list: state.list.filter((_, i) => i !== action.payload),
       };
 
-    case GET_CATEGORY:
+    case GET_PRODUCT:
       return {
         ...state,
         selected: action.payload,
       };
 
-    case GET_CATEGORY_LIST:
+    case GET_PRODUCT_LIST:
       return {
         ...state,
         list: Object.values(action.payload),
       };
 
+    case GET_FILTERS:
+      return {
+        ...state,
+        filters: action.payload,
+      };
     default:
       return state;
   }

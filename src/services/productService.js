@@ -10,7 +10,7 @@ export const saveProduct = async (payload) => await API.post(PRODUCTS_URL, { pay
 
 export const updateProduct = async (id, payload) => await API.patch(PRODUCTS_URL, { id, payload });
 
-export const getProductList = async (payload) => await API.get(PRODUCTS_URL, { payload });
+export const getProductList = async (payload) => await API.get(PRODUCTS_URL, { params: payload });
 
 export const addVariants = async (id, payload) => await API.post(PRODUCTS_URL, { id, payload });
 
