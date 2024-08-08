@@ -29,6 +29,7 @@ const ClientsPage = () => {
 
   // State
   const [clientTarget, setClientTarget] = useState(null);
+  const [fetched, setFetched] = useState(false);
 
   const [paramId, setParamId] = useState();
   const [loading, setLoading] = useState(true);
@@ -57,6 +58,7 @@ const ClientsPage = () => {
       const result = await deleteClient(paramId);
       if (result) {
         dispatch({ type: DELETE_CLIENT, payload: result });
+        dispatch({ type: GET_CLIENT_LIST, payload: [] });
         toast.success('Cliente eliminado con éxito');
         setLoading(false);
       }
@@ -72,6 +74,7 @@ const ClientsPage = () => {
       setLoading(true);
       const result = await getClientList();
       if (result) {
+        setFetched(true);
         setLoading(false);
         dispatch({ type: GET_CLIENT_LIST, payload: result });
       }
@@ -85,7 +88,7 @@ const ClientsPage = () => {
 
   // Effects
   useEffect(() => {
-    if (!clientList) {
+    if (!clientList || (clientList.length == 0 && !fetched)) {
       fetchClients();
     } else {
       setLoading(false);

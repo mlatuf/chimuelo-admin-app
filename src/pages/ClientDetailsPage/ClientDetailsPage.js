@@ -8,7 +8,7 @@ import { Container, Stack, Typography } from '@mui/material';
 
 // Context
 import { useClientContext } from 'context/client/clientContext';
-import { DELETE_CLIENT, GET_CLIENT } from 'context/client/actions';
+import { DELETE_CLIENT, GET_CLIENT, GET_CLIENT_LIST } from 'context/client/actions';
 
 // Services
 import { deleteClient, getClient, saveClient, updateClient } from 'services/clientService';
@@ -36,8 +36,8 @@ const ClientDetailsPage = () => {
     try {
       setLoading(true);
       const selectedClient = await getClient(clientId);
-      setLoading(false);
       if (selectedClient) {
+        setLoading(false);
         dispatch({ type: GET_CLIENT, payload: selectedClient });
       } else {
         toast.error('El cliente no existe', {
@@ -57,10 +57,14 @@ const ClientDetailsPage = () => {
       setLoading(true);
       const result = await deleteClient(clientId);
       if (result) {
-        dispatch({ type: DELETE_CLIENT, payload: result });
-        toast.success('Cliente eliminado con éxito', {
-          onClose: navigate('/dashboard/clients', { replace: true }),
-        });
+        setTimeout(() => {
+          setLoading(false);
+          dispatch({ type: DELETE_CLIENT, payload: result });
+          dispatch({ type: GET_CLIENT_LIST, payload: [] });
+          toast.success('Cliente eliminado con éxito', {
+            onClose: navigate('/dashboard/clients', { replace: true }),
+          });
+        }, 3000);
       }
     } catch (error) {
       toast.error(error.message, {
@@ -79,12 +83,15 @@ const ClientDetailsPage = () => {
   const onSubmit = async (payload) => {
     try {
       setLoading(true);
-      const result = payload.uid ? await updateClient(payload) : await saveClient(payload);
-      if (result) {
-        setLoading(false);
-        toast.success(`El cliente ${result.firstName} ${result.lastName} fue guardado con exito`, {
-          onClose: navigate('/dashboard/clients', { replace: true }),
-        });
+      const { data } = clientId ? await updateClient(clientId, payload) : await saveClient(payload);
+      if (data) {
+        setTimeout(() => {
+          setLoading(false);
+          dispatch({ type: GET_CLIENT_LIST, payload: [] });
+          toast.success(`El cliente ${data.name} ${data.lastname} fue guardado con exito`, {
+            onClose: navigate('/dashboard/clients', { replace: true }),
+          });
+        }, 3000);
       }
     } catch (error) {
       setLoading(false);

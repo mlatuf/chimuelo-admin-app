@@ -119,7 +119,7 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
             />
             <TableBody>
               {filteredClients.slice(page * ROWS_PER_PAGE, page * ROWS_PER_PAGE + ROWS_PER_PAGE).map((row) => {
-                const { id, name, lastname, points, avatarUrl } = row;
+                const { id, name, lastname, score, avatarUrl } = row;
                 const selectedClient = selected.indexOf(id) !== -1;
                 const fullName = `${name} ${lastname}`;
 
@@ -138,7 +138,7 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
                       </Stack>
                     </TableCell>
 
-                    <TableCell align="left">{points}</TableCell>
+                    <TableCell align="left">{score}</TableCell>
 
                     <TableCell align="right">
                       <IconButton size="large" color="inherit" onClick={(event) => onOpenMenu(event, id)}>

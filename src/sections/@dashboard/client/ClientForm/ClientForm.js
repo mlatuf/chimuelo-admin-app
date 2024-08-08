@@ -110,7 +110,7 @@ const ClientForm = ({ client, onSubmit, onDelete }) => {
           <Button variant="outlined" color="error" onClick={onDelete}>
             Eliminar
           </Button>
-          <Button variant="contained" color="inherit">
+          <Button variant="contained" color="inherit" onClick={() => history.back()}>
             Cancelar
           </Button>
           <Button variant="contained" type="submit" disabled={!isValid}>
