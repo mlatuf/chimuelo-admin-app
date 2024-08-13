@@ -8,13 +8,13 @@ import { Container, Stack, Typography } from '@mui/material';
 
 // Context
 import { useClientContext } from 'context/client/clientContext';
-import { DELETE_CLIENT, GET_CLIENT } from 'context/client/actions';
+import { DELETE_CLIENT, GET_CLIENT, GET_CLIENT_LIST } from 'context/client/actions';
 
 // Services
 import { deleteClient, getClient, saveClient, updateClient } from 'services/clientService';
 
 // Components
-import { Spinner } from 'components';
+import { ConfirmationModal, Spinner } from 'components';
 
 // Sections
 import { ClientForm } from 'sections/@dashboard/client';
@@ -31,13 +31,14 @@ const ClientDetailsPage = () => {
 
   // State
   const [loading, setLoading] = useState(false);
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
 
   const fetchClient = async (clientId) => {
     try {
       setLoading(true);
       const selectedClient = await getClient(clientId);
-      setLoading(false);
       if (selectedClient) {
+        setLoading(false);
         dispatch({ type: GET_CLIENT, payload: selectedClient });
       } else {
         toast.error('El cliente no existe', {
@@ -55,12 +56,16 @@ const ClientDetailsPage = () => {
   const handleOnDelete = async () => {
     try {
       setLoading(true);
+      setOpenConfirmationModal(false);
       const result = await deleteClient(clientId);
       if (result) {
-        dispatch({ type: DELETE_CLIENT, payload: result });
-        toast.success('Cliente eliminado con éxito', {
-          onClose: navigate('/dashboard/clients', { replace: true }),
-        });
+        setTimeout(() => {
+          setLoading(false);
+          dispatch({ type: DELETE_CLIENT, payload: clientId });
+          toast.success('Cliente eliminado con éxito', {
+            onClose: navigate('/dashboard/clients', { replace: true }),
+          });
+        }, 3000);
       }
     } catch (error) {
       toast.error(error.message, {
@@ -79,12 +84,15 @@ const ClientDetailsPage = () => {
   const onSubmit = async (payload) => {
     try {
       setLoading(true);
-      const result = payload.uid ? await updateClient(payload) : await saveClient(payload);
-      if (result) {
-        setLoading(false);
-        toast.success(`El cliente ${result.firstName} ${result.lastName} fue guardado con exito`, {
-          onClose: navigate('/dashboard/clients', { replace: true }),
-        });
+      const { data } = clientId ? await updateClient(clientId, payload) : await saveClient(payload);
+      if (data) {
+        setTimeout(() => {
+          setLoading(false);
+          dispatch({ type: GET_CLIENT_LIST, payload: [] });
+          toast.success(`El cliente ${data.name} ${data.lastname} fue guardado con exito`, {
+            onClose: navigate('/dashboard/clients', { replace: true }),
+          });
+        }, 3000);
       }
     } catch (error) {
       setLoading(false);
@@ -105,9 +113,16 @@ const ClientDetailsPage = () => {
           </Typography>
         </Stack>
         <StyledCard>
-          <ClientForm client={client} onSubmit={onSubmit} onDelete={handleOnDelete} />
+          <ClientForm client={client} onSubmit={onSubmit} onDelete={() => setOpenConfirmationModal(true)} />
         </StyledCard>
       </Container>
+      <ConfirmationModal
+        title="Eliminar Cliente"
+        description="Está seguro que desea eliminar el cliente seleccionado?"
+        open={openConfirmationModal}
+        onClose={() => setOpenConfirmationModal(false)}
+        onConfirm={handleOnDelete}
+      />
     </>
   );
 };

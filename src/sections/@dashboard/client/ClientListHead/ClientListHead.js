@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 // @mui
-import { Box, Checkbox, TableCell, TableHead, TableRow, TableSortLabel } from '@mui/material';
+import { Box, TableCell, TableHead, TableRow, TableSortLabel } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ const visuallyHidden = {
   clip: 'rect(0 0 0 0)',
 };
 
-const ClientListHead = ({ order, orderBy, rowCount, headLabel, numSelected, onRequestSort, onSelectAllClick }) => {
+const ClientListHead = ({ order, orderBy, headLabel, onRequestSort, sortEnabled }) => {
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -24,13 +24,7 @@ const ClientListHead = ({ order, orderBy, rowCount, headLabel, numSelected, onRe
   return (
     <TableHead>
       <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-          />
-        </TableCell>
+        <TableCell padding="checkbox" />
         {headLabel.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -39,7 +33,7 @@ const ClientListHead = ({ order, orderBy, rowCount, headLabel, numSelected, onRe
           >
             <TableSortLabel
               hideSortIcon
-              active={orderBy === headCell.id}
+              active={orderBy === headCell.id && sortEnabled}
               direction={orderBy === headCell.id ? order : 'asc'}
               onClick={createSortHandler(headCell.id)}
             >
@@ -58,21 +52,17 @@ const ClientListHead = ({ order, orderBy, rowCount, headLabel, numSelected, onRe
 ClientListHead.propTypes = {
   order: PropTypes.oneOf(['asc', 'desc']),
   orderBy: PropTypes.string,
-  rowCount: PropTypes.number,
   headLabel: PropTypes.array,
-  numSelected: PropTypes.number,
   onRequestSort: PropTypes.func,
-  onSelectAllClick: PropTypes.func,
+  sortEnabled: PropTypes.bool,
 };
 
 ClientListHead.defaultProps = {
   order: 'asc',
   orderBy: '',
-  rowCount: 0,
   headLabel: [],
-  numSelected: 0,
   onRequestSort: null,
-  onSelectAllClick: null,
+  sortEnabled: false,
 };
 
 export default ClientListHead;
