@@ -11,8 +11,8 @@ export const applySortFilter = (array, comparator, query) => {
     return filter(
       array,
       (_client) =>
-        _client.firstName.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        _client.lastName.toLowerCase().indexOf(query.toLowerCase()) !== -1
+        _client.name.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
+        _client.lastname.toLowerCase().indexOf(query.toLowerCase()) !== -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
@@ -20,7 +20,7 @@ export const applySortFilter = (array, comparator, query) => {
 
 export const TABLE_HEAD = [
   { id: 'name', label: 'Nombre', alignRight: false },
-  { id: 'points', label: 'Chimu puntos', alignRight: false },
+  { id: 'score', label: 'Chimu puntos', alignRight: false },
   { id: '' },
 ];
 

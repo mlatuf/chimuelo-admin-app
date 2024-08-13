@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 // @mui
 import {
   Avatar,
-  Checkbox,
   IconButton,
   InputAdornment,
   Paper,
@@ -17,7 +17,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { MoreVert, Search as SearchIcon } from '@mui/icons-material';
+import { Delete, Edit, Search as SearchIcon } from '@mui/icons-material';
 
 // utils
 import { getComparator } from 'utils';
@@ -30,13 +30,16 @@ import { applySortFilter, ROWS_PER_PAGE, TABLE_HEAD } from './utils';
 
 import { StyledSearch } from './styles';
 
-const ClientsTable = ({ clientList, onOpenMenu }) => {
+const ClientsTable = ({ clientList, onDelete }) => {
+  // Hooks
+  const navigate = useNavigate();
+
   // State
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
-  const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
+  const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE);
 
   // Handlers
   const handleFilterByName = (event) => {
@@ -46,42 +49,25 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
 
   const handleRequestSort = useCallback((event, property) => {
     const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
+    if (property !== '') {
+      setOrder(isAsc ? 'desc' : 'asc');
+      setOrderBy(property);
+    }
   }, []);
-
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelecteds = clientList.map((n) => n.id);
-      setSelected(newSelecteds);
-      return;
-    }
-    setSelected([]);
-  };
-
-  const handleClick = (event, id) => {
-    const selectedIndex = selected.indexOf(id);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
-    }
-    setSelected(newSelected);
-  };
 
   const handleChangePage = useCallback((event, newPage) => {
     setPage(newPage);
   }, []);
 
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   // Memos
   const emptyRows = useMemo(
-    () => (page > 0 ? Math.max(0, (1 + page) * ROWS_PER_PAGE - clientList.length) : 0),
-    [page, ROWS_PER_PAGE]
+    () => (page > 0 ? Math.max(0, (1 + page) * rowsPerPage - clientList.length) : 0),
+    [page, rowsPerPage]
   );
 
   const filteredClients = useMemo(
@@ -93,7 +79,7 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
 
   return (
     <React.Fragment>
-      <Toolbar numSelected={selected.length}>
+      <Toolbar>
         <StyledSearch
           value={filterName}
           onChange={handleFilterByName}
@@ -104,6 +90,7 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
             </InputAdornment>
           }
         />
+        <Typography>{clientList.length} Clientes</Typography>
       </Toolbar>
       <Scrollbar>
         <TableContainer sx={{ minWidth: 800 }}>
@@ -113,22 +100,16 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
               orderBy={orderBy}
               headLabel={TABLE_HEAD}
               rowCount={clientList.length}
-              numSelected={selected.length}
               onRequestSort={handleRequestSort}
-              onSelectAllClick={handleSelectAllClick}
             />
             <TableBody>
-              {filteredClients.slice(page * ROWS_PER_PAGE, page * ROWS_PER_PAGE + ROWS_PER_PAGE).map((row) => {
+              {filteredClients.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                 const { id, name, lastname, score, avatarUrl } = row;
-                const selectedClient = selected.indexOf(id) !== -1;
                 const fullName = `${name} ${lastname}`;
 
                 return (
-                  <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedClient}>
-                    <TableCell padding="checkbox">
-                      <Checkbox checked={selectedClient} onChange={(event) => handleClick(event, id)} />
-                    </TableCell>
-
+                  <TableRow hover key={id} tabIndex={-1}>
+                    <TableCell component="th" padding="checkbox" />
                     <TableCell component="th" scope="row" padding="none">
                       <Stack direction="row" alignItems="center" spacing={2}>
                         <Avatar alt={fullName} src={avatarUrl} />
@@ -140,9 +121,12 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
 
                     <TableCell align="left">{score}</TableCell>
 
-                    <TableCell align="right">
-                      <IconButton size="large" color="inherit" onClick={(event) => onOpenMenu(event, id)}>
-                        <MoreVert />
+                    <TableCell align="center">
+                      <IconButton color="inherit" onClick={() => navigate(`/dashboard/clients/details/${id}`)}>
+                        <Edit />
+                      </IconButton>
+                      <IconButton color="error" onClick={() => onDelete(id)}>
+                        <Delete />
                       </IconButton>
                     </TableCell>
                   </TableRow>
@@ -183,11 +167,14 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
       </Scrollbar>
 
       <TablePagination
+        rowsPerPageOptions={[5, 10, 25, { value: -1, label: 'All' }]}
         component="div"
         count={clientList.length}
-        rowsPerPage={ROWS_PER_PAGE}
+        rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        labelRowsPerPage="Clientes por pagina"
       />
     </React.Fragment>
   );
@@ -195,7 +182,7 @@ const ClientsTable = ({ clientList, onOpenMenu }) => {
 
 ClientsTable.propTypes = {
   clientList: PropTypes.arrayOf(PropTypes.object).isRequired,
-  onOpenMenu: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 export default ClientsTable;

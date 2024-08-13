@@ -19,7 +19,7 @@ const reducer = (state, action) => {
     case DELETE_CLIENT:
       return {
         ...state,
-        list: state.list.filter((_, i) => i !== action.payload),
+        list: state.list.filter((_, i) => i.id !== action.payload),
       };
 
     case GET_CLIENT:

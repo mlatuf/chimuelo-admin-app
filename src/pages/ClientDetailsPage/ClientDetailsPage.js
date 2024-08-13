@@ -14,7 +14,7 @@ import { DELETE_CLIENT, GET_CLIENT, GET_CLIENT_LIST } from 'context/client/actio
 import { deleteClient, getClient, saveClient, updateClient } from 'services/clientService';
 
 // Components
-import { Spinner } from 'components';
+import { ConfirmationModal, Spinner } from 'components';
 
 // Sections
 import { ClientForm } from 'sections/@dashboard/client';
@@ -31,6 +31,7 @@ const ClientDetailsPage = () => {
 
   // State
   const [loading, setLoading] = useState(false);
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
 
   const fetchClient = async (clientId) => {
     try {
@@ -55,12 +56,12 @@ const ClientDetailsPage = () => {
   const handleOnDelete = async () => {
     try {
       setLoading(true);
+      setOpenConfirmationModal(false);
       const result = await deleteClient(clientId);
       if (result) {
         setTimeout(() => {
           setLoading(false);
-          dispatch({ type: DELETE_CLIENT, payload: result });
-          dispatch({ type: GET_CLIENT_LIST, payload: [] });
+          dispatch({ type: DELETE_CLIENT, payload: clientId });
           toast.success('Cliente eliminado con éxito', {
             onClose: navigate('/dashboard/clients', { replace: true }),
           });
@@ -112,9 +113,16 @@ const ClientDetailsPage = () => {
           </Typography>
         </Stack>
         <StyledCard>
-          <ClientForm client={client} onSubmit={onSubmit} onDelete={handleOnDelete} />
+          <ClientForm client={client} onSubmit={onSubmit} onDelete={() => setOpenConfirmationModal(true)} />
         </StyledCard>
       </Container>
+      <ConfirmationModal
+        title="Eliminar Cliente"
+        description="Está seguro que desea eliminar el cliente seleccionado?"
+        open={openConfirmationModal}
+        onClose={() => setOpenConfirmationModal(false)}
+        onConfirm={handleOnDelete}
+      />
     </>
   );
 };

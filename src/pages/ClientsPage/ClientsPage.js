@@ -18,7 +18,7 @@ import { deleteClient, getClientList } from 'services/clientService';
 import { ConfirmationModal, Spinner } from 'components';
 
 // sections
-import { ClientOptionsPopover, ClientsTable } from 'sections/@dashboard/client';
+import { ClientsTable } from 'sections/@dashboard/client';
 // ----------------------------------------------------------------------
 
 const ClientsPage = () => {
@@ -28,22 +28,17 @@ const ClientsPage = () => {
   const { list: clientList } = state;
 
   // State
-  const [clientTarget, setClientTarget] = useState(null);
   const [fetched, setFetched] = useState(false);
+  const [reloadClientList, setReloadClientList] = useState(false);
 
   const [paramId, setParamId] = useState();
   const [loading, setLoading] = useState(true);
   const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
 
   // Handlers
-  const handleOpenMenu = (event, id) => {
+  const handleSetParamId = (id) => {
+    setOpenConfirmationModal(true);
     setParamId(id);
-    setClientTarget(event.currentTarget);
-  };
-
-  const handleCloseMenu = () => {
-    setClientTarget(null);
-    setParamId(null);
   };
 
   const handleNewClient = () => {
@@ -53,14 +48,17 @@ const ClientsPage = () => {
   const handleOnDelete = async () => {
     try {
       setOpenConfirmationModal(false);
-      setClientTarget(null);
       setLoading(true);
       const result = await deleteClient(paramId);
       if (result) {
-        dispatch({ type: DELETE_CLIENT, payload: result });
-        dispatch({ type: GET_CLIENT_LIST, payload: [] });
-        toast.success('Cliente eliminado con éxito');
-        setLoading(false);
+        setTimeout(() => {
+          setLoading(false);
+          dispatch({ type: DELETE_CLIENT, payload: paramId });
+          toast.success('Cliente eliminado con éxito', {
+            onClose: navigate('/dashboard/clients', { replace: true }),
+          });
+          setReloadClientList(true);
+        }, 3000);
       }
     } catch (error) {
       toast.error(error.message, {
@@ -76,6 +74,7 @@ const ClientsPage = () => {
       if (result) {
         setFetched(true);
         setLoading(false);
+        setReloadClientList(false);
         dispatch({ type: GET_CLIENT_LIST, payload: result });
       }
     } catch (error) {
@@ -88,12 +87,12 @@ const ClientsPage = () => {
 
   // Effects
   useEffect(() => {
-    if (!clientList || (clientList.length == 0 && !fetched)) {
+    if (!clientList || (clientList.length == 0 && !fetched) || reloadClientList) {
       fetchClients();
     } else {
       setLoading(false);
     }
-  }, [clientList]);
+  }, [clientList, reloadClientList]);
 
   return (
     <>
@@ -111,15 +110,9 @@ const ClientsPage = () => {
           </Button>
         </Stack>
         <Card>
-          <ClientsTable clientList={clientList} onOpenMenu={handleOpenMenu} />
+          <ClientsTable clientList={clientList} onDelete={handleSetParamId} />
         </Card>
       </Container>
-      <ClientOptionsPopover
-        target={clientTarget}
-        onClose={handleCloseMenu}
-        onDelete={() => setOpenConfirmationModal(true)}
-        paramId={paramId}
-      />
       <ConfirmationModal
         title="Eliminar Cliente"
         description="Está seguro que desea eliminar el cliente seleccionado?"
