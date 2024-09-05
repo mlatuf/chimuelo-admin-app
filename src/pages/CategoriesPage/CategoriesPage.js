@@ -97,12 +97,8 @@ const CategoriesPage = () => {
 
   // Effects
   useEffect(() => {
-    if (!categoriesList || categoriesList.length === 0) {
-      fetchCategories();
-    } else {
-      setLoading(false);
-    }
-  }, [categoriesList]);
+    fetchCategories();
+  }, []);
 
   return (
     <>
